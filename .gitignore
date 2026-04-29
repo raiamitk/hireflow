@@ -1,0 +1,6 @@
+.claude/
+*.zip
+*.log
+__pycache__/
+.env
+node_modules/

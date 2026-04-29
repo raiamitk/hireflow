@@ -1,0 +1,1765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HireFlow v2 — AI Mock Interview</title>
+<style>
+  /* ── Reset & base ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f5f5f0;
+    --bg-tertiary: #eeede8;
+    --bg-info: #e6f1fb;
+    --bg-success: #eaf3de;
+    --bg-warning: #faeeda;
+    --bg-danger: #fcebeb;
+    --text-primary: #1a1a18;
+    --text-secondary: #5f5e5a;
+    --text-info: #0c447c;
+    --text-success: #27500a;
+    --text-warning: #633806;
+    --text-danger: #791f1f;
+    --border: rgba(0,0,0,0.12);
+    --border-md: rgba(0,0,0,0.22);
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --purple: #5341C7;
+    --purple-dark: #4333a8;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 14px;
+    color: var(--text-primary);
+    background: var(--bg-secondary);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg-primary: #1e1e1c;
+      --bg-secondary: #252522;
+      --bg-tertiary: #2c2c29;
+      --bg-info: #042c53;
+      --bg-success: #173404;
+      --bg-warning: #412402;
+      --bg-danger: #501313;
+      --text-primary: #e8e6de;
+      --text-secondary: #9c9a92;
+      --text-info: #85b7eb;
+      --text-success: #97c459;
+      --text-warning: #ef9f27;
+      --text-danger: #f09595;
+      --border: rgba(255,255,255,0.1);
+      --border-md: rgba(255,255,255,0.2);
+    }
+  }
+
+  body { min-height: 100vh; display: flex; flex-direction: column; }
+  .app { display: flex; flex-direction: column; min-height: 100vh; max-width: 1100px; margin: 0 auto; width: 100%; background: var(--bg-primary); }
+
+  /* ── Topbar ── */
+  .topbar { display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; border-bottom: 0.5px solid var(--border); background: var(--bg-primary); }
+  .logo { font-size: 15px; font-weight: 500; display: flex; align-items: center; gap: 9px; }
+  .logo-icon { width: 28px; height: 28px; border-radius: 7px; background: var(--purple); display: flex; align-items: center; justify-content: center; }
+  .badge { font-size: 11px; padding: 2px 9px; border-radius: 20px; font-weight: 500; }
+  .badge-rec { background: var(--bg-danger); color: var(--text-danger); animation: pulse 1.4s ease-in-out infinite; }
+  .badge-ready { background: var(--bg-success); color: var(--text-success); }
+  .badge-info { background: var(--bg-info); color: var(--text-info); }
+  .badge-muted { background: var(--bg-secondary); color: var(--text-secondary); }
+
+  /* ── Buttons ── */
+  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: var(--radius-md); font-size: 13px; font-weight: 500; cursor: pointer; border: 0.5px solid var(--border-md); background: transparent; color: var(--text-primary); transition: background .15s, transform .1s; font-family: inherit; }
+  .btn:hover { background: var(--bg-secondary); }
+  .btn:active { transform: scale(.97); }
+  .btn-primary { background: var(--purple); color: #fff; border-color: var(--purple); }
+  .btn-primary:hover { background: var(--purple-dark); }
+  .btn-danger { background: #dc2626; color: #fff; border-color: #dc2626; }
+  .btn-danger:hover { background: #b91c1c; }
+  .btn-warn { background: #d97706; color: #fff; border-color: #d97706; }
+  .btn-warn:hover { background: #b45309; }
+  .btn-sm { padding: 5px 10px; font-size: 12px; }
+
+  /* ── Forms ── */
+  input, textarea, select { background: var(--bg-primary); color: var(--text-primary); border: 0.5px solid var(--border-md); border-radius: var(--radius-md); font-size: 13px; padding: 8px 10px; width: 100%; font-family: inherit; }
+  input:focus, textarea:focus, select:focus { outline: none; border-color: var(--purple); }
+  label { font-size: 12px; color: var(--text-secondary); display: block; margin-bottom: 4px; }
+
+  /* ── Cards ── */
+  .card { background: var(--bg-primary); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 14px; }
+  .scard { background: var(--bg-secondary); border-radius: 10px; padding: 12px; }
+
+  /* ── Signals ── */
+  .sig-row { display: flex; align-items: center; gap: 8px; margin-bottom: 7px; }
+  .sig-row:last-child { margin-bottom: 0; }
+  .sig-label { font-size: 12px; color: var(--text-secondary); width: 88px; flex-shrink: 0; }
+  .bar-wrap { flex: 1; height: 5px; background: var(--border); border-radius: 3px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 3px; transition: width 1.4s ease; }
+  .bar-g { background: #16a34a; }
+  .bar-a { background: #d97706; }
+  .bar-r { background: #dc2626; }
+  .bar-b { background: var(--purple); }
+  .sig-val { font-size: 12px; font-weight: 500; width: 38px; text-align: right; }
+
+  /* ── Tabs ── */
+  .tabs { display: flex; border-bottom: 0.5px solid var(--border); margin-bottom: 10px; }
+  .tab { padding: 6px 12px; font-size: 13px; cursor: pointer; color: var(--text-secondary); border-bottom: 2px solid transparent; margin-bottom: -0.5px; transition: color .15s; }
+  .tab.active { color: var(--text-primary); border-bottom-color: var(--purple); font-weight: 500; }
+
+  /* ── Layout ── */
+  .main { display: flex; flex: 1; min-height: 0; }
+  .left-col { flex: 0 0 300px; padding: 12px; display: flex; flex-direction: column; gap: 10px; border-right: 0.5px solid var(--border); }
+  .right-col { flex: 1; padding: 12px; display: flex; flex-direction: column; gap: 10px; overflow: hidden; min-width: 0; }
+
+  /* ── Video ── */
+  .video-wrap { position: relative; background: #111; border-radius: 10px; overflow: hidden; aspect-ratio: 4/3; display: flex; align-items: center; justify-content: center; }
+  #webcam { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: none; }
+  #face-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: none; pointer-events: none; }
+  .cam-label { position: absolute; top: 7px; left: 8px; font-size: 10px; color: #fff; background: rgba(0,0,0,.5); padding: 2px 7px; border-radius: 20px; }
+  .rec-badge { position: absolute; top: 7px; right: 8px; font-size: 10px; color: #ef4444; background: rgba(0,0,0,.5); padding: 2px 7px; border-radius: 20px; display: none; align-items: center; gap: 4px; }
+  .rec-dot { width: 6px; height: 6px; border-radius: 50%; background: #ef4444; animation: pulse 1s ease-in-out infinite; display: inline-block; }
+
+  /* ── Transcript ── */
+  .transcript-wrap { background: var(--bg-secondary); border-radius: 10px; padding: 10px; min-height: 80px; max-height: 120px; overflow-y: auto; }
+  .filler { color: #d97706; font-weight: 500; }
+  .cursor { display: inline-block; width: 2px; height: 13px; background: var(--text-secondary); margin-left: 2px; vertical-align: middle; animation: blink .7s step-end infinite; }
+
+  /* ── Score grid ── */
+  .score-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+  .score-cell { background: var(--bg-secondary); border-radius: var(--radius-md); padding: 10px; text-align: center; }
+  .score-cell .lbl { font-size: 11px; color: var(--text-secondary); margin-bottom: 3px; }
+  .score-big { font-size: 26px; font-weight: 500; }
+
+  /* ── Feedback ── */
+  .fb-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+
+  /* ── Screenshot strip ── */
+  .ss-strip { display: flex; gap: 8px; overflow-x: auto; padding: 4px 0; }
+  .ss-item { flex-shrink: 0; width: 120px; border-radius: 8px; border: 0.5px solid var(--border-md); overflow: hidden; position: relative; }
+  .ss-badge { position: absolute; top: 4px; left: 4px; font-size: 10px; padding: 1px 5px; border-radius: 4px; font-weight: 500; }
+  .ss-lbl { font-size: 10px; padding: 3px 6px; color: var(--text-secondary); background: var(--bg-secondary); border-top: 0.5px solid var(--border); }
+
+  /* ── Upload zone ── */
+  .upload-zone { border: 1.5px dashed var(--border-md); border-radius: 10px; padding: 20px; text-align: center; cursor: pointer; transition: border-color .2s; }
+  .upload-zone:hover { border-color: var(--purple); }
+  .upload-zone.has-file { border-color: #16a34a; background: var(--bg-success); }
+
+  /* ── Setup steps ── */
+  .step-dots { display: flex; gap: 6px; justify-content: center; margin-bottom: 16px; }
+  .step-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border-md); }
+  .step-dot.active { background: var(--purple); }
+  .step-dot.done { background: #16a34a; }
+
+  /* ── Q pills ── */
+  .q-pill { padding: 3px 10px; border-radius: 20px; font-size: 12px; border: 0.5px solid var(--border); cursor: pointer; background: transparent; color: var(--text-secondary); font-family: inherit; transition: all .15s; }
+  .q-pill.active { background: var(--purple); color: #fff; border-color: var(--purple); }
+  .q-pill:hover:not(.active) { background: var(--bg-secondary); }
+
+  /* ── Waveform ── */
+  .wf-bar { width: 3px; border-radius: 2px; background: var(--border); transition: height .12s ease; }
+
+  /* ── Retake banner ── */
+  .retake-banner { background: var(--bg-warning); border: 0.5px solid #d97706; border-radius: var(--radius-md); padding: 8px 12px; font-size: 12px; color: var(--text-warning); display: flex; align-items: center; gap: 8px; animation: fadeIn .3s ease; }
+
+  /* ── Misc ── */
+  .spinner { width: 16px; height: 16px; border: 2px solid var(--border); border-top-color: var(--purple); border-radius: 50%; animation: spin .7s linear infinite; display: inline-block; vertical-align: middle; }
+  .screen { display: none; flex-direction: column; min-height: 100vh; }
+  .screen.active { display: flex; }
+  .controls-bar { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-top: 0.5px solid var(--border); flex-wrap: wrap; background: var(--bg-primary); }
+  .section-title { font-size: 11px; color: var(--text-secondary); font-weight: 500; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 8px; }
+
+  /* ── Animations ── */
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }
+  @keyframes spin { to{transform:rotate(360deg)} }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:none} }
+  @keyframes blink { 50%{opacity:0} }
+  @keyframes timerFlash { 0%,100%{color:var(--text-danger)} 50%{color:#f87171} }
+
+  /* ── Modal overlay ── */
+  .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:1000; display:flex; align-items:center; justify-content:center; animation:fadeIn .2s ease; }
+  .modal-box { background:var(--bg-primary); border-radius:var(--radius-lg); padding:20px; max-width:600px; width:90%; max-height:85vh; overflow-y:auto; position:relative; box-shadow:0 20px 60px rgba(0,0,0,.3); }
+  .modal-close { position:absolute; top:12px; right:12px; background:none; border:none; font-size:18px; cursor:pointer; color:var(--text-secondary); padding:4px 8px; border-radius:6px; }
+  .modal-close:hover { background:var(--bg-secondary); }
+
+  /* ── History cards ── */
+  .hist-card { background:var(--bg-secondary); border-radius:var(--radius-lg); padding:14px; cursor:pointer; transition:background .15s; border:0.5px solid var(--border); }
+  .hist-card:hover { background:var(--bg-tertiary); }
+  .hist-score { font-size:22px; font-weight:600; color:var(--purple); }
+
+  /* ── STAR checklist ── */
+  .star-row { display:flex; align-items:center; gap:8px; font-size:12px; padding:3px 0; }
+  .star-check { width:14px; height:14px; border-radius:4px; border:1.5px solid var(--border-md); flex-shrink:0; display:flex; align-items:center; justify-content:center; transition:all .25s; }
+  .star-check.done { background:var(--purple); border-color:var(--purple); }
+  .star-check.done::after { content:'✓'; font-size:9px; color:#fff; }
+
+  /* ── Answer timer ── */
+  .ans-timer { font-size:11px; font-variant-numeric:tabular-nums; padding:2px 8px; border-radius:20px; background:var(--bg-secondary); color:var(--text-secondary); font-weight:500; }
+  .ans-timer.warn { background:var(--bg-warning); color:var(--text-warning); animation:timerFlash 1s ease-in-out infinite; }
+  .ans-timer.too-short { background:var(--bg-danger); color:var(--text-danger); }
+
+  /* ── Warmup badge ── */
+  .warmup-badge { background:var(--bg-info); color:var(--text-info); border-radius:20px; font-size:11px; padding:2px 9px; font-weight:500; }
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ══════════════ SETUP SCREEN ══════════════ -->
+<div id="screen-setup" class="screen active">
+  <div class="topbar">
+    <div class="logo">
+      <div class="logo-icon">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 2L13 5.5V10.5L8 14L3 10.5V5.5L8 2Z" stroke="#fff" stroke-width="1.2"/><circle cx="8" cy="8" r="2" fill="#fff"/></svg>
+      </div>
+      HireFlow
+    </div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <button class="btn btn-sm" onclick="showHistory()" id="btn-history" style="display:none">
+        <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.2"/><path d="M8 5V8.5L10 10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+        History
+      </button>
+      <span class="badge badge-info">Setup</span>
+    </div>
+  </div>
+
+  <div style="padding:24px;max-width:560px;margin:0 auto;width:100%;display:flex;flex-direction:column;gap:16px">
+    <div class="step-dots">
+      <div class="step-dot active" id="sd0"></div>
+      <div class="step-dot" id="sd1"></div>
+      <div class="step-dot" id="sd2"></div>
+    </div>
+
+    <!-- Step 0: Role & Company -->
+    <div id="setup-step-0">
+      <div style="font-size:16px;font-weight:500;margin-bottom:4px">Role & company</div>
+      <div style="font-size:13px;color:var(--text-secondary);margin-bottom:16px">We'll generate tailored questions for your specific role and company.</div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div><label>Role title *</label><input id="inp-role" placeholder="e.g. Senior Product Manager" /></div>
+        <div><label>Company name *</label><input id="inp-company" placeholder="e.g. Stripe" /></div>
+        <div><label>Job description URL (optional)</label><input id="inp-jd-url" placeholder="https://jobs.example.com/..." /></div>
+        <div><label>Or paste JD text (optional)</label><textarea id="inp-jd-text" rows="3" placeholder="Paste job description here…" style="resize:vertical"></textarea></div>
+        <div>
+          <label>Your own custom questions (optional, one per line)</label>
+          <textarea id="inp-custom-q" rows="3" placeholder="e.g. How do you handle ambiguity in product strategy?" style="resize:vertical"></textarea>
+          <div style="font-size:11px;color:var(--text-secondary);margin-top:3px">These are added on top of AI-generated questions.</div>
+        </div>
+      </div>
+      <div style="margin-top:16px">
+        <button class="btn btn-primary" onclick="setupNext(1)" style="width:100%">Continue →</button>
+      </div>
+    </div>
+
+    <!-- Step 1: Resume -->
+    <div id="setup-step-1" style="display:none">
+      <div style="font-size:16px;font-weight:500;margin-bottom:4px">Resume (optional)</div>
+      <div style="font-size:13px;color:var(--text-secondary);margin-bottom:16px">Upload to personalise questions to your background.</div>
+      <div class="upload-zone" id="resume-zone" onclick="document.getElementById('resume-file').click()">
+        <input type="file" id="resume-file" accept=".pdf,.docx,.txt" style="display:none" onchange="handleResume(this)">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" style="margin:0 auto 8px;display:block;color:var(--text-secondary)"><rect x="4" y="3" width="12" height="16" rx="2" stroke="currentColor" stroke-width="1.2"/><path d="M14 3L18 7" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M14 3V7H18" stroke="currentColor" stroke-width="1.2"/><path d="M8 11H14M8 14H12" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
+        <div style="font-size:13px;color:var(--text-secondary)" id="resume-label">Click to upload PDF, DOCX, or TXT</div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:16px">
+        <button class="btn" onclick="setupNext(0)" style="flex:1">← Back</button>
+        <button class="btn btn-primary" onclick="setupNext(2)" style="flex:1">Continue →</button>
+      </div>
+    </div>
+
+    <!-- Step 2: Preferences -->
+    <div id="setup-step-2" style="display:none">
+      <div style="font-size:16px;font-weight:500;margin-bottom:4px">Question preferences</div>
+      <div style="font-size:13px;color:var(--text-secondary);margin-bottom:16px">Choose focus areas and difficulty.</div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div>
+          <label>Number of questions</label>
+          <select id="inp-qcount">
+            <option value="3">3 questions (~10 min)</option>
+            <option value="5" selected>5 questions (~20 min)</option>
+            <option value="8">8 questions (~30 min)</option>
+          </select>
+        </div>
+        <div>
+          <label>Focus areas</label>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px" id="focus-pills">
+            <button class="q-pill active" data-focus="Behavioural" onclick="toggleFocus(this)">Behavioural</button>
+            <button class="q-pill active" data-focus="Technical" onclick="toggleFocus(this)">Technical</button>
+            <button class="q-pill active" data-focus="Leadership" onclick="toggleFocus(this)">Leadership</button>
+            <button class="q-pill" data-focus="Case study" onclick="toggleFocus(this)">Case study</button>
+            <button class="q-pill" data-focus="Culture fit" onclick="toggleFocus(this)">Culture fit</button>
+            <button class="q-pill" data-focus="Salary negotiation" onclick="toggleFocus(this)">Salary negotiation</button>
+          </div>
+        </div>
+        <div>
+          <label>Difficulty</label>
+          <select id="inp-diff">
+            <option value="entry">Entry-level</option>
+            <option value="mid" selected>Mid-level</option>
+            <option value="senior">Senior / leadership</option>
+          </select>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;background:var(--bg-secondary);border-radius:var(--radius-md);padding:10px 12px">
+          <div>
+            <div style="font-size:13px;font-weight:500">Warm-up mode</div>
+            <div style="font-size:11px;color:var(--text-secondary);margin-top:2px">2 casual questions to settle nerves before the real interview</div>
+          </div>
+          <label style="position:relative;display:inline-block;width:36px;height:20px;margin:0;cursor:pointer">
+            <input type="checkbox" id="inp-warmup" style="opacity:0;width:0;height:0;position:absolute" onchange="document.getElementById('warmup-track').style.background=this.checked?'var(--purple)':'var(--border-md)';document.getElementById('warmup-knob').style.transform=this.checked?'translateX(16px)':''">
+            <span id="warmup-track" onclick="document.getElementById('inp-warmup').click()" style="position:absolute;inset:0;background:var(--border-md);border-radius:20px;transition:.2s;cursor:pointer">
+              <span id="warmup-knob" style="position:absolute;top:2px;left:2px;width:16px;height:16px;background:#fff;border-radius:50%;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.2)"></span>
+            </span>
+          </label>
+        </div>
+        <div>
+          <label>AI Provider</label>
+          <select id="inp-provider" onchange="updateProviderUI()">
+            <option value="grok">Grok (xAI) — api.x.ai</option>
+            <option value="groq">Groq — Free tier, fast (groq.com)</option>
+            <option value="gemini">Google Gemini — Free tier</option>
+            <option value="anthropic">Anthropic Claude — original</option>
+          </select>
+        </div>
+        <div>
+          <label id="apikey-label">Grok API key</label>
+          <input type="password" id="inp-apikey" placeholder="xai-..." />
+          <div style="font-size:11px;color:var(--text-secondary);margin-top:4px" id="apikey-hint">Get one at <span id="apikey-link">console.x.ai</span> · stored in session only, never persisted.</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:16px">
+        <button class="btn" onclick="setupNext(1)" style="flex:1">← Back</button>
+        <button class="btn btn-primary" id="btn-generate" onclick="generateInterview()" style="flex:1">
+          <span id="gen-label">Generate questions</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ LOADING SCREEN ══════════════ -->
+<div id="screen-loading" class="screen" style="align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:16px">
+  <div class="spinner" style="width:32px;height:32px;border-width:3px"></div>
+  <div style="font-size:14px;font-weight:500" id="load-msg">Generating questions…</div>
+  <div style="font-size:12px;color:var(--text-secondary)" id="load-sub">Using Claude to craft personalised questions</div>
+</div>
+
+<!-- ══════════════ INTERVIEW SCREEN ══════════════ -->
+<div id="screen-interview" class="screen">
+  <div class="topbar">
+    <div class="logo">
+      <div class="logo-icon">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 2L13 5.5V10.5L8 14L3 10.5V5.5L8 2Z" stroke="#fff" stroke-width="1.2"/><circle cx="8" cy="8" r="2" fill="#fff"/></svg>
+      </div>
+      HireFlow
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <span class="badge badge-muted" id="status-badge">Ready</span>
+      <span style="font-size:13px;font-weight:500;color:var(--text-secondary);font-variant-numeric:tabular-nums" id="timer">00:00</span>
+    </div>
+  </div>
+
+  <!-- Q pills bar -->
+  <div style="padding:8px 14px;border-bottom:0.5px solid var(--border);display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--bg-primary)">
+    <span style="font-size:12px;color:var(--text-secondary);flex-shrink:0">Questions</span>
+    <div style="display:flex;gap:5px;flex-wrap:wrap" id="q-pills"></div>
+    <div style="margin-left:auto;font-size:12px;color:var(--text-secondary)" id="role-label"></div>
+  </div>
+
+  <div class="main">
+    <!-- Left: camera + signals -->
+    <div class="left-col">
+      <div class="video-wrap">
+        <span class="cam-label">Camera</span>
+        <div class="rec-badge" id="rec-badge"><span class="rec-dot"></span>REC</div>
+        <div id="vid-placeholder" style="display:flex;flex-direction:column;align-items:center;gap:8px;color:#666">
+          <svg width="36" height="36" viewBox="0 0 40 40" fill="none"><rect x="4" y="10" width="24" height="20" rx="4" stroke="currentColor" stroke-width="1.5"/><path d="M28 16L36 12V28L28 24" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+          <span style="font-size:11px">Camera off</span>
+        </div>
+        <video id="webcam" autoplay muted playsinline></video>
+        <canvas id="face-canvas"></canvas>
+        <canvas id="ss-canvas" style="display:none" width="240" height="135"></canvas>
+      </div>
+
+      <!-- Facial signals — fed by MediaPipe if available -->
+      <div class="scard">
+        <div class="section-title">Facial signals <span id="mp-badge" style="font-size:10px;padding:1px 6px;border-radius:10px;background:var(--bg-warning);color:var(--text-warning);font-weight:500;margin-left:4px">simulated</span></div>
+        <div class="sig-row"><span class="sig-label">Eye contact</span><div class="bar-wrap"><div class="bar-fill bar-g" id="s-eye" style="width:0%"></div></div><span class="sig-val" id="v-eye">—</span></div>
+        <div class="sig-row"><span class="sig-label">Confidence</span><div class="bar-wrap"><div class="bar-fill bar-g" id="s-conf" style="width:0%"></div></div><span class="sig-val" id="v-conf">—</span></div>
+        <div class="sig-row"><span class="sig-label">Stress</span><div class="bar-wrap"><div class="bar-fill bar-a" id="s-stress" style="width:0%"></div></div><span class="sig-val" id="v-stress">—</span></div>
+        <div class="sig-row"><span class="sig-label">Engagement</span><div class="bar-wrap"><div class="bar-fill bar-b" id="s-engage" style="width:0%"></div></div><span class="sig-val" id="v-engage">—</span></div>
+        <div class="sig-row"><span class="sig-label">Smile</span><div class="bar-wrap"><div class="bar-fill bar-g" id="s-smile" style="width:0%"></div></div><span class="sig-val" id="v-smile">—</span></div>
+        <div class="sig-row"><span class="sig-label">Brow furrow</span><div class="bar-wrap"><div class="bar-fill bar-r" id="s-brow" style="width:0%"></div></div><span class="sig-val" id="v-brow">—</span></div>
+      </div>
+
+      <!-- Speech signals -->
+      <div class="scard">
+        <div class="section-title">Speech signals</div>
+        <div style="display:flex;align-items:center;gap:3px;height:28px;margin-bottom:8px" id="waveform"></div>
+        <div class="sig-row"><span class="sig-label">Pace (WPM)</span><div class="bar-wrap"><div class="bar-fill bar-g" id="s-pace" style="width:0%"></div></div><span class="sig-val" id="v-pace">—</span></div>
+        <div class="sig-row"><span class="sig-label">Fillers</span><div class="bar-wrap"><div class="bar-fill bar-a" id="s-filler" style="width:0%"></div></div><span class="sig-val" id="v-filler">—</span></div>
+        <div class="sig-row"><span class="sig-label">Clarity</span><div class="bar-wrap"><div class="bar-fill bar-g" id="s-clarity" style="width:0%"></div></div><span class="sig-val" id="v-clarity">—</span></div>
+      </div>
+    </div>
+
+    <!-- Right: question + tabs -->
+    <div class="right-col">
+      <div class="card">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+          <span style="font-size:12px;color:var(--text-secondary)" id="q-num-label">Question 1</span>
+          <span style="font-size:11px;padding:2px 8px;border-radius:20px;background:var(--bg-info);color:var(--text-info)" id="q-tag">—</span>
+          <span class="warmup-badge" id="warmup-badge" style="display:none">Warm-up</span>
+          <span class="ans-timer" id="ans-timer" style="display:none">0:00</span>
+          <div style="margin-left:auto;display:flex;gap:6px">
+            <button class="btn btn-sm" id="btn-watchback" onclick="watchBack()" style="display:none">
+              <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.2"/><path d="M6.5 5.5L11 8L6.5 10.5V5.5Z" fill="currentColor"/></svg>
+              Watch back
+            </button>
+            <button class="btn btn-sm btn-warn" id="btn-retake" onclick="retakeAnswer()" style="display:none">
+              <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M3 8A5 5 0 1 0 5 4.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M3 4.5V8H6.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Retake
+            </button>
+          </div><!-- end right-button-group -->
+        </div>
+        <div style="font-size:14px;font-weight:500;line-height:1.55" id="q-text">Press Start to begin the interview.</div>
+        <div style="font-size:12px;color:var(--text-secondary);margin-top:6px;font-style:italic" id="q-tip"></div>
+      </div>
+
+      <div id="retake-banner" style="display:none" class="retake-banner">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.2"/><path d="M8 5V8.5L10 10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+        Retake started — answer again when ready.
+      </div>
+
+      <div class="tabs">
+        <div class="tab active" id="tab-live" onclick="switchTab('live')">Live</div>
+        <div class="tab" id="tab-mistakes" onclick="switchTab('mistakes')">Mistakes</div>
+        <div class="tab" id="tab-feedback" onclick="switchTab('feedback')">AI Feedback</div>
+        <div class="tab" id="tab-scores" onclick="switchTab('scores')">Scores</div>
+        <div class="tab" id="tab-email" onclick="switchTab('email')">Follow-up Email</div>
+      </div>
+
+      <!-- Live pane -->
+      <div id="pane-live" style="display:flex;flex-direction:column;gap:8px;flex:1;animation:fadeIn .25s ease">
+        <div class="transcript-wrap">
+          <div style="font-size:11px;color:var(--text-secondary);margin-bottom:5px">Live transcript</div>
+          <div style="font-size:13px;line-height:1.6" id="transcript-text">
+            <span style="color:var(--text-secondary);font-style:italic">Start the interview to see live transcription…</span>
+          </div>
+        </div>
+        <div class="scard">
+          <div class="section-title">Content analysis</div>
+          <div class="sig-row"><span class="sig-label">STAR method</span><div class="bar-wrap"><div class="bar-fill bar-g" id="s-star" style="width:0%"></div></div><span class="sig-val" id="v-star">—</span></div>
+          <div class="sig-row"><span class="sig-label">Relevance</span><div class="bar-wrap"><div class="bar-fill bar-g" id="s-rel" style="width:0%"></div></div><span class="sig-val" id="v-rel">—</span></div>
+          <div class="sig-row"><span class="sig-label">Conciseness</span><div class="bar-wrap"><div class="bar-fill bar-a" id="s-conc" style="width:0%"></div></div><span class="sig-val" id="v-conc">—</span></div>
+        </div>
+        <div class="scard">
+          <div class="section-title">STAR framework</div>
+          <div class="star-row"><div class="star-check" id="star-s"></div><span><b>S</b>ituation — set the context</span></div>
+          <div class="star-row"><div class="star-check" id="star-t"></div><span><b>T</b>ask — your role / goal</span></div>
+          <div class="star-row"><div class="star-check" id="star-a"></div><span><b>A</b>ction — what you did</span></div>
+          <div class="star-row"><div class="star-check" id="star-r"></div><span><b>R</b>esult — measurable outcome</span></div>
+        </div>
+      </div>
+
+      <!-- Mistakes pane -->
+      <div id="pane-mistakes" style="display:none;flex-direction:column;gap:8px;animation:fadeIn .25s ease">
+        <div style="font-size:12px;color:var(--text-secondary)">Screenshots captured when a mistake was detected.</div>
+        <div class="ss-strip" id="screenshot-strip">
+          <div style="font-size:12px;color:var(--text-secondary);font-style:italic;padding:8px 0">No mistakes detected yet.</div>
+        </div>
+        <div id="mistake-list" style="display:flex;flex-direction:column;gap:6px;max-height:200px;overflow-y:auto"></div>
+      </div>
+
+      <!-- Feedback pane -->
+      <div id="pane-feedback" style="display:none;flex-direction:column;gap:8px;animation:fadeIn .25s ease">
+        <div class="card">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+            <div style="width:26px;height:26px;border-radius:50%;background:var(--purple);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+              <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M8 2L13 5.5V10.5L8 14L3 10.5V5.5L8 2Z" stroke="#fff" stroke-width="1.2"/><circle cx="8" cy="8" r="2" fill="#fff"/></svg>
+            </div>
+            <div>
+              <div style="font-size:13px;font-weight:500">HireFlow Coach</div>
+              <div style="font-size:11px;color:var(--text-secondary)" id="fb-time">Waiting for answer…</div>
+            </div>
+            <div id="fb-spinner" style="display:none;margin-left:auto"><div class="spinner"></div></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:7px" id="fb-items">
+            <div style="font-size:13px;color:var(--text-secondary);font-style:italic">Complete your answer to receive AI-powered coaching.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Email pane -->
+      <div id="pane-email" style="display:none;flex-direction:column;gap:8px;animation:fadeIn .25s ease">
+        <div class="card">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+            <div style="width:26px;height:26px;border-radius:50%;background:#16a34a;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+              <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><rect x="2" y="4" width="12" height="9" rx="1.5" stroke="#fff" stroke-width="1.2"/><path d="M2 5.5L8 9.5L14 5.5" stroke="#fff" stroke-width="1.2" stroke-linecap="round"/></svg>
+            </div>
+            <div>
+              <div style="font-size:13px;font-weight:500">Follow-up Thank-you Email</div>
+              <div style="font-size:11px;color:var(--text-secondary)" id="email-status">Generate after completing at least one answer.</div>
+            </div>
+            <div id="email-spinner" style="display:none;margin-left:auto"><div class="spinner"></div></div>
+          </div>
+          <button class="btn btn-primary btn-sm" id="btn-gen-email" onclick="generateEmail()" style="margin-bottom:10px">
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M8 2L13 5.5V10.5L8 14L3 10.5V5.5L8 2Z" stroke="#fff" stroke-width="1.2"/><circle cx="8" cy="8" r="2" fill="#fff"/></svg>
+            Draft with AI
+          </button>
+          <textarea id="email-body" rows="10" placeholder="Click 'Draft with AI' to generate a personalised follow-up email…" style="font-size:12px;line-height:1.6;resize:vertical"></textarea>
+          <div style="display:flex;gap:8px;margin-top:8px">
+            <button class="btn btn-sm" onclick="copyEmail()">Copy</button>
+            <button class="btn btn-sm" onclick="downloadEmail()">Download .txt</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Scores pane -->
+      <div id="pane-scores" style="display:none;flex-direction:column;gap:10px;animation:fadeIn .25s ease">
+        <div class="score-grid">
+          <div class="score-cell"><div class="lbl">Overall</div><div class="score-big" id="sc-overall" style="color:#16a34a">—</div></div>
+          <div class="score-cell"><div class="lbl">Content</div><div class="score-big" id="sc-content" style="color:#2563eb">—</div></div>
+          <div class="score-cell"><div class="lbl">Delivery</div><div class="score-big" id="sc-delivery" style="color:#d97706">—</div></div>
+          <div class="score-cell"><div class="lbl">Presence</div><div class="score-big" id="sc-presence" style="color:#7c3aed">—</div></div>
+        </div>
+        <div class="scard" id="score-detail">
+          <div style="font-size:13px;color:var(--text-secondary);font-style:italic">Complete an answer to see scores.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls-bar">
+    <button class="btn btn-primary" id="btn-start" onclick="startInterview()">
+      <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.2"/><path d="M6.5 5.5L11 8L6.5 10.5V5.5Z" fill="currentColor"/></svg>
+      Start
+    </button>
+    <button class="btn btn-danger btn-sm" id="btn-stop" onclick="stopInterview()" style="display:none">Stop</button>
+    <button class="btn btn-sm" id="btn-next" onclick="nextQuestion()" style="display:none">Next →</button>
+    <div style="flex:1"></div>
+    <button class="btn btn-sm" id="btn-mp" onclick="toggleMediaPipe()" style="display:none">
+      <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="6" r="3" stroke="currentColor" stroke-width="1.2"/><path d="M2 13c0-2.5 2.5-4 6-4s6 1.5 6 4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      Face Mesh: off
+    </button>
+    <button class="btn btn-sm" onclick="goSetup()">← Setup</button>
+    <button class="btn btn-sm" onclick="exportReport()">
+      <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><rect x="3" y="2" width="10" height="12" rx="2" stroke="currentColor" stroke-width="1.2"/><path d="M6 6H10M6 9H10M6 12H8" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
+      Export report
+    </button>
+  </div>
+</div>
+
+<!-- ══════════════ HISTORY SCREEN ══════════════ -->
+<div id="screen-history" class="screen">
+  <div class="topbar">
+    <div class="logo">
+      <div class="logo-icon"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 2L13 5.5V10.5L8 14L3 10.5V5.5L8 2Z" stroke="#fff" stroke-width="1.2"/><circle cx="8" cy="8" r="2" fill="#fff"/></svg></div>
+      HireFlow
+    </div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <button class="btn btn-sm" onclick="showScreen('setup')">← Back</button>
+      <button class="btn btn-sm btn-danger" onclick="clearHistory()">Clear all</button>
+    </div>
+  </div>
+  <div style="padding:20px;max-width:760px;margin:0 auto;width:100%">
+    <div style="font-size:16px;font-weight:500;margin-bottom:4px">Session history</div>
+    <div style="font-size:13px;color:var(--text-secondary);margin-bottom:16px">Your past mock interviews, stored locally in this browser.</div>
+    <div id="history-list" style="display:flex;flex-direction:column;gap:10px">
+      <div style="font-size:13px;color:var(--text-secondary);font-style:italic">No sessions yet — complete an interview to see it here.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ VIDEO PLAYBACK MODAL ══════════════ -->
+<div id="modal-video" class="modal-overlay" style="display:none" onclick="if(event.target===this)closeModal('video')">
+  <div class="modal-box" style="max-width:520px">
+    <button class="modal-close" onclick="closeModal('video')">✕</button>
+    <div style="font-size:14px;font-weight:500;margin-bottom:12px">Answer playback</div>
+    <video id="playback-video" controls style="width:100%;border-radius:8px;background:#000"></video>
+    <div style="font-size:12px;color:var(--text-secondary);margin-top:8px" id="playback-label"></div>
+  </div>
+</div>
+
+<!-- ══════════════ HISTORY DETAIL MODAL ══════════════ -->
+<div id="modal-history" class="modal-overlay" style="display:none" onclick="if(event.target===this)closeModal('history')">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('history')">✕</button>
+    <div id="modal-history-content"></div>
+  </div>
+</div>
+
+</div><!-- .app -->
+
+<script>
+/* ═══════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════ */
+const S = {
+  role:'', company:'', jdUrl:'', jdText:'', resumeText:'', qcount:5,
+  focusAreas:['Behavioural','Technical','Leadership'], difficulty:'mid', apiKey:'',
+  provider:'grok', customQuestions:[], warmup:false,
+  questions:[], currentQ:0, running:false, seconds:0,
+  transcripts:[], screenshots:[], allFeedback:[],
+  mpEnabled: false, mpLoaded: false,
+  isWarmupQ: false, warmupDone: false,
+  companyResearch: null,
+};
+
+let timerInt=null, signalInt=null, transcriptInt=null, waveInt=null, frameInt=null;
+let ansTimerInt=null, ansSeconds=0;
+let camStream=null, faceMesh=null, animFrame=null;
+let smileHist=[], eyeHist=[], screenshotCount=0, mistakeCooldown=false;
+let frameBuffer=[];
+let mediaRecorder=null, recordedChunks=[], questionRecordings=[];
+
+/* ═══════════════════════════════════════════
+   SETUP
+═══════════════════════════════════════════ */
+function setupNext(step){
+  if(step===1){
+    const role=document.getElementById('inp-role').value.trim();
+    const co=document.getElementById('inp-company').value.trim();
+    if(!role||!co){alert('Please enter a role title and company name.');return;}
+    S.role=role; S.company=co;
+    S.jdUrl=document.getElementById('inp-jd-url').value.trim();
+    S.jdText=document.getElementById('inp-jd-text').value.trim();
+    S.customQuestions=document.getElementById('inp-custom-q').value.trim()
+      .split('\n').map(l=>l.trim()).filter(Boolean)
+      .map(t=>({text:t,tag:'Custom',tip:'Your own question — answer as thoroughly as you can.'}));
+  }
+  [0,1,2].forEach(i=>{
+    document.getElementById('setup-step-'+i).style.display=i===step?'':'none';
+    const d=document.getElementById('sd'+i);
+    d.classList.toggle('active',i===step);
+    d.classList.toggle('done',i<step);
+  });
+}
+
+function handleResume(inp){
+  if(!inp.files[0]) return;
+  const z=document.getElementById('resume-zone');
+  z.classList.add('has-file');
+  document.getElementById('resume-label').textContent=inp.files[0].name+' — ready';
+  const r=new FileReader();
+  r.onload=e=>S.resumeText=e.target.result.slice(0,3000);
+  r.readAsText(inp.files[0]);
+}
+
+function toggleFocus(btn){
+  btn.classList.toggle('active');
+  S.focusAreas=Array.from(document.querySelectorAll('#focus-pills .q-pill.active')).map(b=>b.dataset.focus);
+}
+
+/* ═══════════════════════════════════════════
+   PROVIDER / AI ABSTRACTION
+═══════════════════════════════════════════ */
+const PROVIDERS = {
+  grok:      { label:'Grok API key', placeholder:'xai-...', hint:'console.x.ai', link:'https://console.x.ai' },
+  groq:      { label:'Groq API key (free tier available)', placeholder:'gsk_...', hint:'console.groq.com', link:'https://console.groq.com' },
+  gemini:    { label:'Gemini API key (free tier available)', placeholder:'AIza...', hint:'aistudio.google.com', link:'https://aistudio.google.com/app/apikey' },
+  anthropic: { label:'Anthropic API key', placeholder:'sk-ant-...', hint:'console.anthropic.com', link:'https://console.anthropic.com' },
+};
+
+function updateProviderUI(){
+  const p = document.getElementById('inp-provider').value;
+  S.provider = p;
+  const cfg = PROVIDERS[p];
+  document.getElementById('apikey-label').textContent = cfg.label;
+  document.getElementById('inp-apikey').placeholder = cfg.placeholder;
+  document.getElementById('apikey-hint').innerHTML = `Get one at <span id="apikey-link">${cfg.hint}</span> · stored in session only, never persisted.`;
+}
+
+async function callAI(prompt, maxTokens){
+  const p = S.provider;
+  let url, headers, body, extractText;
+
+  if(p === 'anthropic'){
+    url = 'https://api.anthropic.com/v1/messages';
+    headers = {'Content-Type':'application/json','x-api-key':S.apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'};
+    body = {model:'claude-sonnet-4-20250514', max_tokens:maxTokens, messages:[{role:'user',content:prompt}]};
+    extractText = d => d.content.map(c=>c.text||'').join('');
+  } else if(p === 'grok'){
+    url = 'https://api.x.ai/v1/chat/completions';
+    headers = {'Content-Type':'application/json','Authorization':'Bearer '+S.apiKey};
+    body = {model:'grok-3-mini', max_tokens:maxTokens, messages:[{role:'user',content:prompt}]};
+    extractText = d => d.choices[0].message.content;
+  } else if(p === 'groq'){
+    url = 'https://api.groq.com/openai/v1/chat/completions';
+    headers = {'Content-Type':'application/json','Authorization':'Bearer '+S.apiKey};
+    body = {model:'llama-3.3-70b-versatile', max_tokens:maxTokens, messages:[{role:'user',content:prompt}]};
+    extractText = d => d.choices[0].message.content;
+  } else if(p === 'gemini'){
+    url = 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions';
+    headers = {'Content-Type':'application/json','Authorization':'Bearer '+S.apiKey};
+    body = {model:'gemini-2.0-flash', max_tokens:maxTokens, messages:[{role:'user',content:prompt}]};
+    extractText = d => d.choices[0].message.content;
+  }
+
+  const res = await fetch(url, {method:'POST', headers, body:JSON.stringify(body)});
+  if(!res.ok){ const err=await res.text(); throw new Error(err); }
+  const data = await res.json();
+  return extractText(data).replace(/```json|```/g,'').trim();
+}
+
+/* ═══════════════════════════════════════════
+   QUESTION GENERATION
+═══════════════════════════════════════════ */
+async function generateInterview(){
+  S.qcount=parseInt(document.getElementById('inp-qcount').value);
+  S.difficulty=document.getElementById('inp-diff').value;
+  S.apiKey=document.getElementById('inp-apikey').value.trim();
+  S.provider=document.getElementById('inp-provider').value;
+  S.warmup=document.getElementById('inp-warmup').checked;
+  if(!S.focusAreas.length){alert('Select at least one focus area.');return;}
+
+  showScreen('loading');
+  const msgs=[
+    ['Researching '+S.company+'…','Looking at company profile and role requirements'],
+    ['Analysing role requirements…','Matching JD to interview competencies'],
+    ['Generating tailored questions…','Using Claude to craft personalised questions'],
+  ];
+  let mi=0;
+  const msgInt=setInterval(()=>{
+    if(mi<msgs.length){
+      document.getElementById('load-msg').textContent=msgs[mi][0];
+      document.getElementById('load-sub').textContent=msgs[mi][1];
+      mi++;
+    }
+  },2200);
+
+  const prompt=`You are an expert interview coach. Generate exactly ${S.qcount} interview questions for a ${S.difficulty}-level ${S.role} role at ${S.company}.
+
+Context:
+- Company: ${S.company}
+- Role: ${S.role}
+- Difficulty: ${S.difficulty}
+- Focus areas: ${S.focusAreas.join(', ')}
+${S.jdText?'- JD excerpt: '+S.jdText.slice(0,800):''}
+${S.resumeText?'- Candidate background: '+S.resumeText.slice(0,600):''}
+
+Respond ONLY with valid JSON — no markdown, no preamble:
+{"questions":[{"text":"...","tag":"Behavioural|Technical|Leadership|Case study|Culture fit","tip":"one-sentence coaching hint for the candidate"}]}
+
+Make questions specific to ${S.company}'s known culture, products, and challenges.`;
+
+  try{
+    const [raw] = await Promise.all([callAI(prompt,1000), fetchResearch()]);
+    S.questions=JSON.parse(raw).questions.slice(0,S.qcount);
+  }catch(e){
+    S.questions=getFallbackQuestions();
+  }
+  // Append custom questions
+  if(S.customQuestions.length) S.questions=[...S.questions,...S.customQuestions];
+  clearInterval(msgInt);
+  initInterviewScreen();
+  showScreen('interview');
+}
+
+function getFallbackQuestions(){
+  return [
+    {text:`Tell me about a time you drove significant impact. How would you replicate that at ${S.company}?`,tag:'Behavioural',tip:'Use STAR — Situation, Task, Action, Result.'},
+    {text:'How do you approach prioritisation when multiple stakeholders have conflicting urgent needs?',tag:'Leadership',tip:'Show a framework, then give a real example.'},
+    {text:'Walk me through a technically complex decision you made. What alternatives did you consider?',tag:'Technical',tip:'Explain trade-offs — interviewers value structured thinking.'},
+    {text:'Describe a failure and what you learned from it.',tag:'Behavioural',tip:'Be honest. The learning matters more than the mistake.'},
+    {text:`Where do you see ${S.company}'s biggest opportunity in the next 2 years?`,tag:'Culture fit',tip:'Research the company — show informed perspective.'},
+  ].slice(0,S.qcount);
+}
+
+/* ═══════════════════════════════════════════
+   INTERVIEW INIT
+═══════════════════════════════════════════ */
+function initInterviewScreen(){
+  S.currentQ=0; S.transcripts=[]; S.screenshots=[]; S.allFeedback=[];
+  S.warmupDone=false; S.isWarmupQ=false;
+  screenshotCount=0; questionRecordings=[];
+  document.getElementById('role-label').textContent=S.role+' @ '+S.company;
+
+  // Build question list (warmup prepended if enabled)
+  const warmupQs= S.warmup ? [
+    {text:'Tell me a little about yourself and what brings you to interview prep today.',tag:'Warm-up',tip:'Relax — this is just to get comfortable. No right answer.', isWarmup:true},
+    {text:'What's one recent achievement you're proud of, big or small?',tag:'Warm-up',tip:'Keep it brief and genuine.', isWarmup:true},
+  ] : [];
+  S.allQuestions=[...warmupQs, ...S.questions];
+
+  const pillsEl=document.getElementById('q-pills');
+  pillsEl.innerHTML='';
+  S.allQuestions.forEach((q,i)=>{
+    const p=document.createElement('button');
+    const isWu=q.isWarmup;
+    p.className='q-pill'+(i===0?' active':'');
+    p.id='qpill-'+i;
+    p.textContent=isWu?'W'+(i+1):'Q'+(isWu?i:i-warmupQs.length+1);
+    p.style.cssText=isWu?'border-color:#2563eb;color:#2563eb':'';
+    p.onclick=()=>{if(!S.running)setQuestion(i);};
+    pillsEl.appendChild(p);
+  });
+  initWaveform(); setQuestion(0);
+}
+
+function setActiveQPills(i){
+  document.querySelectorAll('.q-pill').forEach((p,j)=>p.classList.toggle('active',j===i));
+}
+
+function setQuestion(i){
+  S.currentQ=i;
+  const qs=S.allQuestions||S.questions;
+  const q=qs[i];
+  if(!q) return;
+  S.isWarmupQ=!!q.isWarmup;
+  document.getElementById('q-text').textContent=q.text;
+  document.getElementById('q-tag').textContent=q.tag;
+  document.getElementById('q-tip').textContent=q.tip||'';
+  const warmupQCount=(S.allQuestions||[]).filter(x=>x.isWarmup).length;
+  const dispIdx=S.isWarmupQ?i+1:i-warmupQCount+1;
+  const dispOf=S.isWarmupQ?warmupQCount:qs.length-warmupQCount;
+  document.getElementById('q-num-label').textContent=(S.isWarmupQ?'Warm-up ':'Question ')+dispIdx+' of '+dispOf;
+  document.getElementById('warmup-badge').style.display=S.isWarmupQ?'inline-flex':'none';
+  setActiveQPills(i);
+  document.getElementById('transcript-text').innerHTML='<span style="color:var(--text-secondary);font-style:italic">Listening…</span>';
+  document.getElementById('fb-items').innerHTML='<div style="font-size:13px;color:var(--text-secondary);font-style:italic">Complete your answer to receive AI-powered coaching.</div>';
+  document.getElementById('fb-time').textContent='Waiting…';
+  document.getElementById('btn-retake').style.display='none';
+  document.getElementById('btn-watchback').style.display=questionRecordings[i]?'inline-flex':'none';
+  document.getElementById('retake-banner').style.display='none';
+  document.getElementById('screenshot-strip').innerHTML='<div style="font-size:12px;color:var(--text-secondary);font-style:italic;padding:8px 0">No mistakes detected yet.</div>';
+  document.getElementById('mistake-list').innerHTML='';
+  resetStarChecks();
+  startAnsTimer();
+  switchTab('live');
+}
+
+function initWaveform(){
+  const wf=document.getElementById('waveform');
+  wf.innerHTML='';
+  for(let i=0;i<24;i++){
+    const b=document.createElement('div');
+    b.className='wf-bar'; b.id='wb-'+i; b.style.height='3px';
+    wf.appendChild(b);
+  }
+}
+
+/* ═══════════════════════════════════════════
+   INTERVIEW CONTROLS
+═══════════════════════════════════════════ */
+async function startInterview(){
+  try{
+    camStream=await navigator.mediaDevices.getUserMedia({video:true,audio:true});
+    const v=document.getElementById('webcam');
+    v.srcObject=camStream; v.style.display='block';
+    document.getElementById('vid-placeholder').style.display='none';
+    document.getElementById('btn-mp').style.display='inline-flex';
+    // Start MediaRecorder for video playback
+    startMediaRecorder(camStream);
+  }catch(e){
+    // Try video-only if audio denied
+    try{
+      camStream=await navigator.mediaDevices.getUserMedia({video:true,audio:false});
+      const v=document.getElementById('webcam');
+      v.srcObject=camStream; v.style.display='block';
+      document.getElementById('vid-placeholder').style.display='none';
+      document.getElementById('btn-mp').style.display='inline-flex';
+    }catch(e2){}
+  }
+
+  S.running=true;
+  document.getElementById('btn-start').style.display='none';
+  document.getElementById('btn-stop').style.display='inline-flex';
+  document.getElementById('btn-next').style.display='inline-flex';
+  document.getElementById('btn-retake').style.display='none';
+  document.getElementById('status-badge').textContent='Recording';
+  document.getElementById('status-badge').className='badge badge-rec';
+  document.getElementById('rec-badge').style.display='flex';
+  startTimer(); startSignals(); startSimulatedTranscript(); startWave(); startFrameBuffer(); startAnsTimer();
+}
+
+function stopInterview(){
+  S.running=false;
+  stopSpeechRecognition();
+  stopAnsTimer();
+  saveQuestionRecording();
+  [timerInt,signalInt,transcriptInt,waveInt,frameInt].forEach(clearInterval);
+  frameBuffer=[];
+  if(mediaRecorder&&mediaRecorder.state!=='inactive') mediaRecorder.stop();
+  if(animFrame){cancelAnimationFrame(animFrame);animFrame=null;}
+  if(camStream) camStream.getTracks().forEach(t=>t.stop());
+  document.getElementById('webcam').style.display='none';
+  document.getElementById('vid-placeholder').style.display='flex';
+  document.getElementById('btn-start').style.display='inline-flex';
+  document.getElementById('btn-stop').style.display='none';
+  document.getElementById('btn-next').style.display='none';
+  document.getElementById('btn-retake').style.display='none';
+  document.getElementById('btn-mp').style.display='none';
+  document.getElementById('status-badge').textContent='Done';
+  document.getElementById('status-badge').className='badge badge-ready';
+  document.getElementById('rec-badge').style.display='none';
+  document.querySelectorAll('.wf-bar').forEach(b=>{b.style.height='3px';b.style.background='var(--border)';});
+  saveSession();
+}
+
+function retakeAnswer(){
+  stopSpeechRecognition();
+  stopAnsTimer();
+  speechFull=''; speechWordCount=0;
+  resetStarChecks();
+  document.getElementById('transcript-text').innerHTML='<span style="color:var(--text-secondary);font-style:italic">Retake — listening again…</span>';
+  document.getElementById('retake-banner').style.display='flex';
+  document.getElementById('fb-items').innerHTML='<div style="font-size:13px;color:var(--text-secondary);font-style:italic">Retake in progress…</div>';
+  document.getElementById('btn-retake').style.display='none';
+  setTimeout(()=>{document.getElementById('retake-banner').style.display='none';startSimulatedTranscript();startAnsTimer();},1500);
+}
+
+function nextQuestion(){
+  stopSpeechRecognition();
+  stopAnsTimer();
+  saveQuestionRecording();
+  speechFull=''; speechWordCount=0;
+  const qs=S.allQuestions||S.questions;
+  const next=(S.currentQ+1)%qs.length;
+  setQuestion(next);
+  if(S.running){clearInterval(signalInt);startSignals();startSimulatedTranscript();}
+}
+
+/* ═══════════════════════════════════════════
+   TIMER
+═══════════════════════════════════════════ */
+function startTimer(){
+  S.seconds=0;
+  timerInt=setInterval(()=>{
+    S.seconds++;
+    const m=String(Math.floor(S.seconds/60)).padStart(2,'0');
+    const s=String(S.seconds%60).padStart(2,'0');
+    document.getElementById('timer').textContent=m+':'+s;
+  },1000);
+}
+
+/* ═══════════════════════════════════════════
+   SIGNALS (simulated fallback + MediaPipe read)
+═══════════════════════════════════════════ */
+function startSignals(){updateSignals(); signalInt=setInterval(updateSignals,1800);}
+
+function updateSignals(){
+  // If MediaPipe is running, pull real values
+  if(S.mpEnabled && window.HireFlowFaceSignals && Date.now()-window.HireFlowFaceSignals.timestamp<3000){
+    const mp=window.HireFlowFaceSignals;
+    setBar('s-eye','v-eye',mp.eyeContact,'%',mp.eyeContact>60?'g':mp.eyeContact>40?'a':'r');
+    setBar('s-conf','v-conf',mp.confidence,'%',mp.confidence>55?'g':'a');
+    setBar('s-stress','v-stress',mp.stress,'%',mp.stress<35?'g':mp.stress<60?'a':'r');
+    setBar('s-engage','v-engage',mp.engagement,'%',mp.engagement>60?'b':'a');
+    setBar('s-smile','v-smile',mp.smile,'%','g');
+    setBar('s-brow','v-brow',mp.browFurrow,'%',mp.browFurrow<30?'g':mp.browFurrow<60?'a':'r');
+    maybeCaptureMistake({eye:mp.eyeContact,stress:mp.stress,fillers:0});
+    document.getElementById('mp-badge').textContent='live';
+    document.getElementById('mp-badge').style.background='var(--bg-success)';
+    document.getElementById('mp-badge').style.color='var(--text-success)';
+    return;
+  }
+  // Simulated fallback
+  const eye=rand(55,90),conf=rand(50,85),stress=rand(15,55);
+  const engage=rand(60,92),smile=rand(20,70),brow=rand(10,50);
+  const pace=rand(128,168),fillers=rand(0,7),clarity=rand(62,90);
+  setBar('s-eye','v-eye',eye,'%',eye>65?'g':'a');
+  setBar('s-conf','v-conf',conf,'%',conf>60?'g':'a');
+  setBar('s-stress','v-stress',stress,'%',stress<35?'g':stress>55?'r':'a');
+  setBar('s-engage','v-engage',engage,'%',engage>65?'b':'a');
+  setBar('s-smile','v-smile',smile,'%','g');
+  setBar('s-brow','v-brow',brow,'%',brow<30?'g':brow>55?'r':'a');
+  setBar('s-pace','v-pace',Math.round((pace-80)/1.2),'',pace>130&&pace<170?'g':'a');
+  document.getElementById('v-pace').textContent=pace;
+  document.getElementById('v-filler').textContent=fillers;
+  setBar('s-filler','v-filler',fillers*13,'','a');
+  document.getElementById('v-filler').textContent=fillers;
+  setBar('s-clarity','v-clarity',clarity,'%',clarity>65?'g':'a');
+  setBar('s-star','v-star',rand(50,85),'%','g');
+  setBar('s-rel','v-rel',rand(65,92),'%','g');
+  setBar('s-conc','v-conc',rand(42,75),'%','a');
+  maybeCaptureMistake({eye,stress,fillers});
+}
+
+function setBar(bid,vid,val,unit,cls){
+  const b=document.getElementById(bid); const v=document.getElementById(vid);
+  if(b){b.style.width=Math.min(100,val)+'%';b.className='bar-fill bar-'+cls;}
+  if(v) v.textContent=Math.round(val)+(unit||'');
+}
+function rand(mn,mx){return Math.round(mn+Math.random()*(mx-mn));}
+
+/* ═══════════════════════════════════════════
+   TRANSCRIPT — Web Speech API (real) with simulated fallback
+═══════════════════════════════════════════ */
+const FILLERS=new Set(['um','uh','like','so','basically','literally','actually','you know','right','okay','well','kind of','sort of']);
+let speechRec=null, speechFull='', speechWordCount=0, speechStartTime=0;
+
+function startSimulatedTranscript(){
+  // Try Web Speech API first
+  const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(SpeechRecognition){
+    startRealTranscript(SpeechRecognition);
+    return;
+  }
+  // Fallback: simulated
+  startFallbackTranscript();
+}
+
+function startRealTranscript(SpeechRecognition){
+  if(speechRec){ try{speechRec.abort();}catch(e){} }
+  speechRec=new SpeechRecognition();
+  speechRec.continuous=true;
+  speechRec.interimResults=true;
+  speechRec.lang='en-US';
+  speechFull=''; speechWordCount=0; speechStartTime=Date.now();
+
+  const el=document.getElementById('transcript-text');
+  el.innerHTML='<span style="color:var(--text-secondary);font-style:italic">Listening… speak now</span>';
+
+  speechRec.onresult=e=>{
+    let interim='', final='';
+    for(let i=e.resultIndex;i<e.results.length;i++){
+      const t=e.results[i][0].transcript;
+      if(e.results[i].isFinal){ final+=t; speechFull+=t+' '; }
+      else interim+=t;
+    }
+    // Re-render full transcript with filler highlighting
+    const words=speechFull.split(/\s+/).filter(Boolean);
+    speechWordCount=words.length;
+    const elapsed=(Date.now()-speechStartTime)/60000;
+    const wpm=elapsed>0?Math.round(speechWordCount/elapsed):0;
+    // Update pace bar with real WPM
+    setBar('s-pace','v-pace',Math.round((Math.min(wpm,220)-80)/1.4),'',wpm>100&&wpm<190?'g':'a');
+    document.getElementById('v-pace').textContent=wpm||'—';
+
+    el.innerHTML='';
+    words.forEach(w=>{
+      const clean=w.toLowerCase().replace(/[^a-z\s]/g,'');
+      const span=document.createElement('span');
+      if(FILLERS.has(clean)){span.className='filler';span.textContent=w+' ';}
+      else{span.textContent=w+' ';}
+      el.appendChild(span);
+    });
+    // Show interim in muted style
+    if(interim){
+      const s=document.createElement('span');
+      s.style.color='var(--text-secondary)';
+      s.textContent=interim;
+      el.appendChild(s);
+    }
+    // Count fillers for signal bar
+    const fillerCount=words.filter(w=>FILLERS.has(w.toLowerCase().replace(/[^a-z]/g,''))).length;
+    setBar('s-filler','v-filler',Math.min(fillerCount*10,100),'','a');
+    document.getElementById('v-filler').textContent=fillerCount;
+    // STAR detection
+    checkStar(speechFull);
+  };
+
+  speechRec.onerror=e=>{
+    if(e.error==='not-allowed'||e.error==='service-not-allowed'){
+      el.innerHTML='<span style="color:var(--text-danger)">Mic permission denied — using simulated transcript.</span>';
+      setTimeout(startFallbackTranscript,1200);
+    }
+  };
+
+  speechRec.onend=()=>{
+    // Auto-restart if still running (Chrome stops after silence)
+    if(S.running&&speechRec) try{speechRec.start();}catch(e){}
+  };
+
+  speechRec.start();
+  // Show Next / feedback button after 8s minimum
+  transcriptInt=setTimeout(()=>{
+    if(S.running){
+      document.getElementById('btn-retake').style.display='inline-flex';
+    }
+  },8000);
+}
+
+function stopSpeechRecognition(){
+  if(speechRec){ try{speechRec.abort();}catch(e){} speechRec=null; }
+  clearTimeout(transcriptInt); transcriptInt=null;
+  // Capture final transcript text for feedback
+  const el=document.getElementById('transcript-text');
+  const text=speechFull.trim()||el.textContent.trim();
+  if(text&&text.length>20){
+    S.transcripts[S.currentQ]=text;
+    fetchClaudeFeedback(text, (S.allQuestions||S.questions)[S.currentQ]);
+  }
+}
+
+const SAMPLE_ANSWERS=[
+  "So, um, last year I led a cross-functional team of eight — engineering, design, product. We had three weeks to ship a checkout redesign. I set daily standups, a shared risk log, and made sure blockers were escalated same-day. We shipped on time with zero P0 bugs.",
+  "There was a case, uh, where I disagreed with my manager on release timeline. I prepared a risk doc, requested a one-on-one, and walked through it calmly. We landed on a phased rollout that satisfied both sides.",
+  "We were choosing between microservices and a monolith-first approach for a new data pipeline. I wrote an RFC on latency, ops overhead, and team maturity trade-offs. Given our team of four, we chose monolith-first with clear seams.",
+  "I use a two-by-two — urgency versus impact. Urgent-high-impact goes first. I time-box each item. If two things are truly tied I escalate — I don't let prioritisation become a blocker.",
+  "I'd start with a one-on-one, lead with curiosity before giving my view. I'd be specific about the gap and offer help. If it's a pattern, I'd loop in the manager. The goal is leaving them feeling supported, not judged.",
+];
+
+function startFallbackTranscript(){
+  const raw=SAMPLE_ANSWERS[S.currentQ%SAMPLE_ANSWERS.length];
+  const tokens=raw.split(/(\bum\b|\buh\b|[,. ]+)/).filter(Boolean);
+  let idx=0;
+  const el=document.getElementById('transcript-text');
+  el.innerHTML='<span class="cursor"></span>';
+  transcriptInt=setInterval(()=>{
+    if(idx>=tokens.length){
+      clearInterval(transcriptInt);
+      el.querySelector('.cursor')?.remove();
+      S.transcripts[S.currentQ]=el.textContent;
+      document.getElementById('btn-retake').style.display='inline-flex';
+      checkStar(raw);
+      const qs=S.allQuestions||S.questions;
+      fetchClaudeFeedback(raw, qs[S.currentQ]);
+      return;
+    }
+    const tok=tokens[idx++];
+    const span=document.createElement('span');
+    if(tok==='um'||tok==='uh'){span.className='filler';span.textContent=tok;}
+    else{span.textContent=tok;}
+    el.insertBefore(span, el.querySelector('.cursor'));
+  },220);
+}
+
+/* ═══════════════════════════════════════════
+   CLAUDE FEEDBACK
+═══════════════════════════════════════════ */
+async function fetchClaudeFeedback(answer, question){
+  document.getElementById('fb-spinner').style.display='block';
+  document.getElementById('fb-time').textContent='Analysing…';
+  document.getElementById('fb-items').innerHTML='<div style="font-size:13px;color:var(--text-secondary);font-style:italic;display:flex;align-items:center;gap:8px"><span class="spinner"></span> Claude is analysing your answer…</div>';
+  switchTab('feedback');
+
+  const q=question||{text:'Interview question',tag:'General'};
+  const prompt=`You are an expert interview coach analysing a candidate's answer.
+Question: "${q.text}" (Type: ${q.tag})
+Role: ${S.role} at ${S.company}
+Candidate's answer: "${answer}"
+
+Give exactly 4 coaching points as JSON. No markdown, no preamble:
+{"feedback":[{"type":"strength","text":"..."},{"type":"improvement","text":"..."},{"type":"strength","text":"..."},{"type":"tip","text":"..."}],"scores":{"overall":0-100,"content":0-100,"delivery":0-100,"presence":0-100}}
+
+Be specific to THIS answer and THIS role. Check STAR structure. Score honestly. Each text under 25 words.`;
+
+  try{
+    const raw=await callAI(prompt,600);
+    renderFeedback(JSON.parse(raw));
+  }catch(e){renderFallbackFeedback();}
+}
+
+function renderFeedback(parsed){
+  document.getElementById('fb-spinner').style.display='none';
+  document.getElementById('fb-time').textContent='Analysis complete · just now';
+  const colorMap={strength:'#16a34a',improvement:'#d97706',tip:'#2563eb'};
+  const html=(parsed.feedback||[]).map(f=>`
+    <div style="display:flex;align-items:flex-start;gap:8px;font-size:13px;line-height:1.5">
+      <span class="fb-dot" style="background:${colorMap[f.type]||'#888'}"></span>
+      <span>${f.text}</span>
+    </div>`).join('');
+  document.getElementById('fb-items').innerHTML=html;
+  if(parsed.scores){
+    const sc=parsed.scores;
+    document.getElementById('sc-overall').textContent=Math.round(sc.overall)||'—';
+    document.getElementById('sc-content').textContent=Math.round(sc.content)||'—';
+    document.getElementById('sc-delivery').textContent=Math.round(sc.delivery)||'—';
+    document.getElementById('sc-presence').textContent=Math.round(sc.presence)||'—';
+    document.getElementById('score-detail').innerHTML=`
+      <div class="sig-row"><span class="sig-label">Content</span><div class="bar-wrap"><div class="bar-fill bar-g" style="width:${sc.content}%"></div></div><span class="sig-val">${Math.round(sc.content)}</span></div>
+      <div class="sig-row"><span class="sig-label">Delivery</span><div class="bar-wrap"><div class="bar-fill bar-a" style="width:${sc.delivery}%"></div></div><span class="sig-val">${Math.round(sc.delivery)}</span></div>
+      <div class="sig-row"><span class="sig-label">Presence</span><div class="bar-wrap"><div class="bar-fill bar-b" style="width:${sc.presence}%"></div></div><span class="sig-val">${Math.round(sc.presence)}</span></div>
+    `;
+  }
+  S.allFeedback[S.currentQ]=parsed;
+}
+
+function renderFallbackFeedback(){
+  document.getElementById('fb-spinner').style.display='none';
+  document.getElementById('fb-time').textContent='Analysis complete';
+  document.getElementById('fb-items').innerHTML=`
+    <div style="display:flex;align-items:flex-start;gap:8px;font-size:13px"><span class="fb-dot" style="background:#16a34a"></span><span>Good use of concrete examples — specificity signals credibility.</span></div>
+    <div style="display:flex;align-items:flex-start;gap:8px;font-size:13px"><span class="fb-dot" style="background:#d97706"></span><span>Filler words detected — try a brief pause instead of "um" or "uh".</span></div>
+    <div style="display:flex;align-items:flex-start;gap:8px;font-size:13px"><span class="fb-dot" style="background:#2563eb"></span><span>Quantify your results where possible — numbers make impact memorable.</span></div>`;
+}
+
+/* ═══════════════════════════════════════════
+   WAVEFORM
+═══════════════════════════════════════════ */
+function startWave(){
+  waveInt=setInterval(()=>{
+    if(!S.running) return;
+    for(let i=0;i<24;i++){
+      const el=document.getElementById('wb-'+i);
+      if(el){el.style.height=Math.round(3+Math.random()*22)+'px';el.style.background='var(--purple)';}
+    }
+  },110);
+}
+
+/* ═══════════════════════════════════════════
+   FRAME BUFFER — rolling 3-sec window at ~2fps
+═══════════════════════════════════════════ */
+function startFrameBuffer(){
+  frameBuffer=[];
+  frameInt=setInterval(()=>{
+    if(!S.running) return;
+    const video=document.getElementById('webcam');
+    const canvas=document.getElementById('ss-canvas');
+    const ctx=canvas.getContext('2d');
+    ctx.fillStyle='#111';
+    ctx.fillRect(0,0,240,135);
+    if(video.style.display!=='none'&&video.readyState>=2){
+      ctx.drawImage(video,0,0,240,135);
+      frameBuffer.push(canvas.toDataURL('image/jpeg',0.55));
+    } else {
+      ctx.fillStyle='#444';ctx.font='11px sans-serif';ctx.textAlign='center';
+      ctx.fillText('t='+S.seconds+'s',120,68);
+      frameBuffer.push(canvas.toDataURL('image/jpeg',0.55));
+    }
+    if(frameBuffer.length>7) frameBuffer.shift(); // keep ~3.5 sec
+  },500);
+}
+
+/* ═══════════════════════════════════════════
+   SCREENSHOT / MISTAKE CAPTURE — animated 3-sec clips
+═══════════════════════════════════════════ */
+const MISTAKE_TYPES=[
+  {label:'Low eye contact',sev:'red',detail:'Looking away from camera — signals disengagement.'},
+  {label:'High stress',sev:'amber',detail:'Brow furrow and tense expression detected — take a breath.'},
+  {label:'Filler surge',sev:'amber',detail:'Multiple filler words detected — pause instead of filling.'},
+  {label:'Gaze drift',sev:'red',detail:'Eyes drifting frequently — may signal uncertainty.'},
+  {label:'Volume drop',sev:'amber',detail:'Voice trailing at sentence end — signals uncertainty.'},
+];
+
+function maybeCaptureMistake(sig){
+  if(mistakeCooldown||!S.running) return;
+  let triggered=null;
+  if(sig.eye<45) triggered=MISTAKE_TYPES[0];
+  else if(sig.stress>68) triggered=MISTAKE_TYPES[1];
+  else if(sig.fillers>5) triggered=MISTAKE_TYPES[2];
+  else if(Math.random()<0.06) triggered=MISTAKE_TYPES[Math.floor(Math.random()*MISTAKE_TYPES.length)];
+  if(!triggered) return;
+  captureClip(triggered);
+  mistakeCooldown=true;
+  setTimeout(()=>mistakeCooldown=false,8000);
+}
+
+function captureClip(mt){
+  // Snapshot the current rolling buffer (up to 7 frames ≈ 3.5 sec)
+  const frames=[...frameBuffer];
+  if(!frames.length) return;
+
+  const strip=document.getElementById('screenshot-strip');
+  if(screenshotCount===0) strip.innerHTML='';
+  screenshotCount++;
+
+  // Build animated clip item
+  const item=document.createElement('div');
+  item.className='ss-item';
+  item.style.width='138px';
+
+  const clipCanvas=document.createElement('canvas');
+  clipCanvas.width=138;clipCanvas.height=82;
+  clipCanvas.style.cssText='width:138px;height:82px;display:block;border-radius:6px 6px 0 0';
+
+  const badge=document.createElement('span');
+  badge.className='ss-badge';
+  badge.style.cssText=`background:${mt.sev==='red'?'#fee2e2':'#fef3c7'};color:${mt.sev==='red'?'#b91c1c':'#92400e'}`;
+  badge.textContent=mt.label;
+
+  // Duration label
+  const dur=document.createElement('div');
+  dur.style.cssText='position:absolute;bottom:22px;right:4px;font-size:9px;background:rgba(0,0,0,.55);color:#fff;padding:1px 4px;border-radius:3px';
+  dur.textContent=(frames.length*0.5).toFixed(1)+'s clip';
+
+  const lbl=document.createElement('div');
+  lbl.className='ss-lbl';
+  lbl.textContent='t='+S.seconds+'s  Q'+(S.currentQ+1)+' · '+frames.length+' frames';
+
+  item.appendChild(clipCanvas);item.appendChild(badge);item.appendChild(dur);item.appendChild(lbl);
+  strip.appendChild(item);
+
+  // Preload images then animate
+  let fi=0;
+  const ctx=clipCanvas.getContext('2d');
+  const imgs=frames.map(src=>{const i=new Image();i.src=src;return i;});
+  function tick(){
+    const img=imgs[fi%imgs.length];
+    if(img.complete&&img.naturalWidth){
+      ctx.drawImage(img,0,0,138,82);
+    } else {
+      ctx.fillStyle='#222';ctx.fillRect(0,0,138,82);
+    }
+    fi++;
+    // slow down on last frame briefly, then loop
+    setTimeout(tick, fi%imgs.length===0?600:220);
+  }
+  imgs[0].onload=tick; if(imgs[0].complete) tick();
+
+  // Log entry
+  const ml=document.getElementById('mistake-list');
+  const mi=document.createElement('div');
+  mi.style.cssText='background:var(--bg-secondary);border-radius:8px;padding:8px 10px;font-size:12px;display:flex;gap:8px;align-items:flex-start';
+  mi.innerHTML=`<span style="color:${mt.sev==='red'?'#dc2626':'#d97706'};font-weight:500;flex-shrink:0">t=${S.seconds}s</span><span>${mt.detail} <span style="color:var(--text-secondary)">(${frames.length} frames captured)</span></span>`;
+  ml.appendChild(mi);
+  S.screenshots.push({time:S.seconds,question:S.currentQ,type:mt.label,detail:mt.detail,frames:frames.length});
+}
+
+/* ═══════════════════════════════════════════
+   MEDIAPIPE INTEGRATION
+═══════════════════════════════════════════ */
+async function toggleMediaPipe(){
+  if(S.mpEnabled){
+    S.mpEnabled=false;
+    if(animFrame){cancelAnimationFrame(animFrame);animFrame=null;}
+    document.getElementById('face-canvas').style.display='none';
+    document.getElementById('face-canvas').getContext('2d').clearRect(0,0,280,210);
+    document.getElementById('btn-mp').innerHTML=`<svg width="12" height="12" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="6" r="3" stroke="currentColor" stroke-width="1.2"/><path d="M2 13c0-2.5 2.5-4 6-4s6 1.5 6 4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg> Face Mesh: off`;
+    document.getElementById('mp-badge').textContent='simulated';
+    document.getElementById('mp-badge').style.background='var(--bg-warning)';
+    document.getElementById('mp-badge').style.color='var(--text-warning)';
+    return;
+  }
+  document.getElementById('btn-mp').innerHTML='<span class="spinner" style="width:12px;height:12px;border-width:1.5px"></span> Loading…';
+  try{
+    await loadMediaPipe();
+    S.mpEnabled=true; S.mpLoaded=true;
+    const canvas=document.getElementById('face-canvas');
+    canvas.style.display='block';
+    document.getElementById('btn-mp').innerHTML=`<svg width="12" height="12" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="6" r="3" stroke="currentColor" stroke-width="1.2"/><path d="M2 13c0-2.5 2.5-4 6-4s6 1.5 6 4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg> Face Mesh: on`;
+    runMeshLoop();
+  }catch(e){
+    document.getElementById('btn-mp').innerHTML=`<svg width="12" height="12" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="6" r="3" stroke="currentColor" stroke-width="1.2"/><path d="M2 13c0-2.5 2.5-4 6-4s6 1.5 6 4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg> Face Mesh: off`;
+    alert('MediaPipe failed to load: '+e.message);
+  }
+}
+
+async function loadMediaPipe(){
+  if(window.FaceMesh&&faceMesh) return;
+  return new Promise((resolve,reject)=>{
+    const s1=document.createElement('script');
+    // Try local files first, fall back to CDN
+    const LOCAL='mediapipe/face_mesh.js';
+    const CDN='https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh@0.4.1633559619/face_mesh.js';
+    s1.src=LOCAL;
+    s1.onload=()=>{
+      faceMesh=new FaceMesh({locateFile:f=>`mediapipe/${f}`});
+      faceMesh.setOptions({maxNumFaces:1,refineLandmarks:true,minDetectionConfidence:0.5,minTrackingConfidence:0.5});
+      faceMesh.onResults(onMeshResults);
+      resolve();
+    };
+    s1.onerror=()=>{
+      // Local failed — fall back to CDN
+      const s2=document.createElement('script');
+      s2.src=CDN;
+      s2.onload=()=>{
+        faceMesh=new FaceMesh({locateFile:f=>`https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh@0.4.1633559619/${f}`});
+        faceMesh.setOptions({maxNumFaces:1,refineLandmarks:true,minDetectionConfidence:0.5,minTrackingConfidence:0.5});
+        faceMesh.onResults(onMeshResults);
+        resolve();
+      };
+      s2.onerror=()=>reject(new Error('MediaPipe unavailable locally and CDN blocked'));
+      document.head.appendChild(s2);
+    };
+    document.head.appendChild(s1);
+  });
+}
+
+async function runMeshLoop(){
+  if(!S.mpEnabled) return;
+  const video=document.getElementById('webcam');
+  if(video.readyState>=2) await faceMesh.send({image:video});
+  animFrame=requestAnimationFrame(runMeshLoop);
+}
+
+function onMeshResults(results){
+  const canvas=document.getElementById('face-canvas');
+  canvas.width=canvas.offsetWidth||280;
+  canvas.height=canvas.offsetHeight||210;
+  const ctx=canvas.getContext('2d');
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  if(!results.multiFaceLandmarks||!results.multiFaceLandmarks.length) return;
+  const lm=results.multiFaceLandmarks[0];
+  const W=canvas.width,H=canvas.height;
+  // Draw minimal mesh
+  const PAIRS=[[33,133],[362,263],[61,291],[21,54],[251,284],[10,152],[234,454],[1,168]];
+  ctx.strokeStyle='rgba(83,74,183,0.4)'; ctx.lineWidth=0.8;
+  PAIRS.forEach(([a,b])=>{
+    ctx.beginPath();ctx.moveTo(lm[a].x*W,lm[a].y*H);ctx.lineTo(lm[b].x*W,lm[b].y*H);ctx.stroke();
+  });
+  [33,133,362,263,1,61,291,468,473].forEach(i=>{
+    if(!lm[i]) return;
+    ctx.beginPath();ctx.arc(lm[i].x*W,lm[i].y*H,2,0,Math.PI*2);
+    ctx.fillStyle=i>=468?'rgba(220,60,60,0.9)':'rgba(83,74,183,0.9)';ctx.fill();
+  });
+  // Compute signals
+  const faceH=Math.abs(lm[10].y-lm[152].y),faceW=Math.abs(lm[234].x-lm[454].x);
+  if(faceH<0.01||faceW<0.01) return;
+  const ecL={x:(lm[33].x+lm[133].x)/2,y:(lm[33].y+lm[133].y)/2};
+  const ecR={x:(lm[362].x+lm[263].x)/2,y:(lm[362].y+lm[263].y)/2};
+  const ewL=Math.abs(lm[133].x-lm[33].x),ewR=Math.abs(lm[263].x-lm[362].x);
+  const iL=lm[468]||ecL,iR=lm[473]||ecR;
+  const offL=Math.sqrt((iL.x-ecL.x)**2+(iL.y-ecL.y)**2);
+  const offR=Math.sqrt((iR.x-ecR.x)**2+(iR.y-ecR.y)**2);
+  eyeHist.push(((1-offL/(ewL*0.35))+(1-offR/(ewR*0.35)))/2);
+  if(eyeHist.length>15) eyeHist.shift();
+  const eye=clamp(eyeHist.reduce((a,b)=>a+b)/eyeHist.length,0,1);
+  const lipD=Math.abs(lm[61].x-lm[291].x);
+  smileHist.push(clamp((lipD/faceW-0.38)/0.2,0,1));
+  if(smileHist.length>20) smileHist.shift();
+  const smile=smileHist.reduce((a,b)=>a+b)/smileHist.length;
+  const brow=clamp(1-(Math.abs(lm[22].y-lm[168].y)+Math.abs(lm[52].y-lm[168].y))/faceH*3,0,1);
+  const yaw=(lm[1].x-lm[168].x)/faceW,pitch=(lm[1].y-lm[168].y)/faceH;
+  const engage=clamp(1-Math.sqrt(yaw**2+pitch**2)*4,0,1);
+  const stress=clamp(0.5*brow+0.3*(1-eye)+0.2*(1-engage),0,1);
+  const conf=clamp(0.4*eye+0.3*(1-stress)+0.3*smile,0,1);
+  window.HireFlowFaceSignals={
+    eyeContact:Math.round(eye*100),confidence:Math.round(conf*100),
+    stress:Math.round(stress*100),engagement:Math.round(engage*100),
+    smile:Math.round(smile*100),browFurrow:Math.round(brow*100),
+    dominantEmotion:conf>0.6?'confident':stress>0.6?'anxious':engage<0.4?'distracted':'neutral',
+    timestamp:Date.now()
+  };
+}
+
+function clamp(v,mn,mx){return Math.max(mn,Math.min(mx,v));}
+
+/* ═══════════════════════════════════════════
+   EXPORT REPORT — tries backend PDF, falls back to .txt
+═══════════════════════════════════════════ */
+const BACKEND='http://localhost:8000';
+
+async function exportReport(){
+  const btn=document.querySelector('[onclick="exportReport()"]');
+  if(btn){btn.innerHTML='<span class="spinner" style="width:12px;height:12px;border-width:1.5px"></span> Exporting…';btn.disabled=true;}
+
+  // Build session payload
+  const payload={
+    role:S.role, company:S.company, difficulty:S.difficulty,
+    duration_seconds:S.seconds,
+    questions:S.questions.map((q,i)=>({
+      index:i, text:q.text, tag:q.tag,
+      transcript:S.transcripts[i]||null,
+      feedback:S.allFeedback[i]?.feedback||null,
+      scores:S.allFeedback[i]?.scores||null,
+    })),
+    mistakes:S.screenshots||[],
+  };
+
+  // Try backend PDF
+  try{
+    const res=await fetch(`${BACKEND}/report/pdf`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(payload),
+      signal:AbortSignal.timeout(8000),
+    });
+    if(res.ok){
+      const blob=await res.blob();
+      const a=document.createElement('a');
+      a.href=URL.createObjectURL(blob);
+      a.download=`hireflow-${S.company.replace(/\s+/g,'-')}-report.pdf`;
+      a.click();
+      if(btn){btn.innerHTML='Export report';btn.disabled=false;}
+      return;
+    }
+  }catch(e){/* backend not running — fall through to txt */}
+
+  // Fallback: plain-text export
+  const lines=['HIREFLOW INTERVIEW REPORT','='.repeat(40),
+    `Role: ${S.role}`,`Company: ${S.company}`,
+    `Date: ${new Date().toLocaleString()}`,
+    `Duration: ${Math.floor(S.seconds/60)}m ${S.seconds%60}s`,''];
+  S.questions.forEach((q,i)=>{
+    lines.push(`Q${i+1} [${q.tag}]: ${q.text}`);
+    if(S.transcripts[i]) lines.push(`Answer: ${S.transcripts[i]}`);
+    if(S.allFeedback[i]?.feedback){
+      lines.push('Coaching:');
+      S.allFeedback[i].feedback.forEach(f=>lines.push(`  [${f.type}] ${f.text}`));
+      const sc=S.allFeedback[i].scores;
+      if(sc) lines.push(`  Scores — Overall:${sc.overall} Content:${sc.content} Delivery:${sc.delivery} Presence:${sc.presence}`);
+    }
+    lines.push('');
+  });
+  if(S.screenshots.length){
+    lines.push('MISTAKES DETECTED:');
+    S.screenshots.forEach(s=>lines.push(`  t=${s.time}s  Q${s.question+1}  ${s.type}: ${s.detail}`));
+  }
+  const blob=new Blob([lines.join('\n')],{type:'text/plain'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`hireflow-report-${S.company.replace(/\s/g,'-')}-${Date.now()}.txt`;
+  a.click();
+  if(btn){btn.innerHTML='Export report';btn.disabled=false;}
+}
+
+/* Auto-fetch company research during loading (if backend running) */
+async function fetchResearch(){
+  if(!S.apiKey) return;
+  try{
+    const res=await fetch(`${BACKEND}/research`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({company:S.company,role:S.role,provider:S.provider,api_key:S.apiKey}),
+      signal:AbortSignal.timeout(10000),
+    });
+    if(res.ok){
+      const data=await res.json();
+      S.companyResearch=data;
+      // Inject insider tips into the question tip fields quietly
+      if(data.insider_tips?.length && S.questions.length){
+        data.insider_tips.forEach((tip,i)=>{
+          if(S.questions[i]) S.questions[i].tip=(S.questions[i].tip?S.questions[i].tip+' · ':'')+tip;
+        });
+      }
+    }
+  }catch(e){/* backend not running — no-op */}
+}
+
+/* ═══════════════════════════════════════════
+   ANSWER TIMER
+═══════════════════════════════════════════ */
+function startAnsTimer(){
+  clearInterval(ansTimerInt);
+  ansSeconds=0;
+  const el=document.getElementById('ans-timer');
+  if(!S.running){el.style.display='none';return;}
+  el.style.display='inline-flex';
+  el.className='ans-timer';
+  el.textContent='0:00';
+  ansTimerInt=setInterval(()=>{
+    ansSeconds++;
+    const m=Math.floor(ansSeconds/60);
+    const s=String(ansSeconds%60).padStart(2,'0');
+    el.textContent=`${m}:${s}`;
+    if(ansSeconds>180){el.className='ans-timer warn';}  // >3min: flash warning
+  },1000);
+}
+
+function stopAnsTimer(){
+  clearInterval(ansTimerInt);
+  const el=document.getElementById('ans-timer');
+  if(ansSeconds>0&&ansSeconds<60&&S.running){
+    el.className='ans-timer too-short';
+    el.textContent+=' (too short)';
+  }
+}
+
+/* ═══════════════════════════════════════════
+   STAR DETECTION
+═══════════════════════════════════════════ */
+const STAR_KEYWORDS={
+  s:/\b(was|when|working|had a|at my|in my|during|faced|i was|we were|the situation|background|context)\b/i,
+  t:/\b(needed to|my goal|responsible for|tasked|had to|my role|objective|the challenge|i needed|was to)\b/i,
+  a:/\b(i did|i took|i led|i built|i created|i decided|i reached|i started|i implemented|i worked|i set up|i designed|i proposed|so i|then i)\b/i,
+  r:/\b(as a result|outcome|resulted in|achieved|impact|increased|decreased|reduced|shipped|completed|saved|we launched|in the end|ultimately|the result)\b/i,
+};
+
+function checkStar(text){
+  ['s','t','a','r'].forEach(k=>{
+    const el=document.getElementById('star-'+k);
+    if(!el) return;
+    if(STAR_KEYWORDS[k].test(text)) el.classList.add('done');
+  });
+  const done=['s','t','a','r'].filter(k=>document.getElementById('star-'+k)?.classList.contains('done')).length;
+  const pct=done*25;
+  setBar('s-star','v-star',pct,'%',pct>=75?'g':pct>=50?'a':'r');
+}
+
+function resetStarChecks(){
+  ['s','t','a','r'].forEach(k=>document.getElementById('star-'+k)?.classList.remove('done'));
+  setBar('s-star','v-star',0,'%','r');
+}
+
+/* ═══════════════════════════════════════════
+   MEDIAPIPE — local + CDN fallback (already below)
+   MEDIAPIPE — MediaRecorder for video playback
+═══════════════════════════════════════════ */
+function startMediaRecorder(stream){
+  recordedChunks=[];
+  const opts=MediaRecorder.isTypeSupported('video/webm;codecs=vp9')
+    ?{mimeType:'video/webm;codecs=vp9'}
+    :MediaRecorder.isTypeSupported('video/webm')?{mimeType:'video/webm'}:{};
+  try{
+    mediaRecorder=new MediaRecorder(stream,opts);
+    mediaRecorder.ondataavailable=e=>{if(e.data.size>0) recordedChunks.push(e.data);};
+    mediaRecorder.start(500); // collect chunks every 500ms
+  }catch(e){ mediaRecorder=null; }
+}
+
+function saveQuestionRecording(){
+  if(!mediaRecorder||recordedChunks.length===0) return;
+  const blob=new Blob(recordedChunks,{type:mediaRecorder.mimeType||'video/webm'});
+  questionRecordings[S.currentQ]=URL.createObjectURL(blob);
+  recordedChunks=[];
+  document.getElementById('btn-watchback').style.display='inline-flex';
+}
+
+function watchBack(){
+  const url=questionRecordings[S.currentQ];
+  if(!url){alert('No recording yet for this question.');return;}
+  const vid=document.getElementById('playback-video');
+  vid.src=url;
+  document.getElementById('playback-label').textContent=
+    `Q${S.currentQ+1} — ${(S.allQuestions||S.questions)[S.currentQ]?.text?.slice(0,80)}…`;
+  document.getElementById('modal-video').style.display='flex';
+  vid.play();
+}
+
+/* ═══════════════════════════════════════════
+   EMAIL DRAFT
+═══════════════════════════════════════════ */
+async function generateEmail(){
+  const answered=S.transcripts.filter(Boolean);
+  if(!answered.length){alert('Complete at least one answer first.');return;}
+  document.getElementById('email-spinner').style.display='block';
+  document.getElementById('email-status').textContent='Drafting…';
+  document.getElementById('btn-gen-email').disabled=true;
+
+  const scoreLines=S.allFeedback.filter(Boolean).map((f,i)=>{
+    const sc=f?.scores;
+    return sc?`Q${i+1} overall: ${Math.round(sc.overall||0)}`:'';
+  }).filter(Boolean).join(', ');
+
+  const prompt=`Write a professional post-interview thank-you email for a candidate who just interviewed for the role of ${S.role} at ${S.company}.
+
+Context:
+- Questions covered: ${(S.allQuestions||S.questions).map(q=>q.tag).join(', ')}
+- Interview duration: ${Math.floor(S.seconds/60)} minutes
+${scoreLines?`- Performance notes: ${scoreLines}`:''}
+
+Write a warm, concise (150-200 words) email that:
+1. Thanks the interviewer(s) by name placeholder [Interviewer Name]
+2. References one specific topic from the interview
+3. Reiterates enthusiasm for the role
+4. Includes a professional sign-off with [Your Name]
+
+Output ONLY the email text, no commentary.`;
+
+  try{
+    const text=await callAI(prompt,400);
+    document.getElementById('email-body').value=text;
+    document.getElementById('email-status').textContent='Ready — edit before sending.';
+  }catch(e){
+    document.getElementById('email-body').value=
+`Subject: Thank you — ${S.role} interview\n\nDear [Interviewer Name],\n\nThank you for taking the time to speak with me today about the ${S.role} position at ${S.company}. I really enjoyed our conversation and learning more about the team's work.\n\nOur discussion reinforced my enthusiasm for this opportunity, and I'm confident my background aligns well with what you're looking for.\n\nPlease don't hesitate to reach out if you need any additional information. I look forward to hearing from you.\n\nBest regards,\n[Your Name]`;
+    document.getElementById('email-status').textContent='AI unavailable — template used.';
+  }
+  document.getElementById('email-spinner').style.display='none';
+  document.getElementById('btn-gen-email').disabled=false;
+}
+
+function copyEmail(){
+  const txt=document.getElementById('email-body').value;
+  if(!txt) return;
+  navigator.clipboard.writeText(txt).then(()=>alert('Copied to clipboard!'));
+}
+
+function downloadEmail(){
+  const txt=document.getElementById('email-body').value;
+  if(!txt) return;
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([txt],{type:'text/plain'}));
+  a.download=`thankyou-email-${S.company.replace(/\s+/g,'-')}.txt`;
+  a.click();
+}
+
+/* ═══════════════════════════════════════════
+   SESSION HISTORY
+═══════════════════════════════════════════ */
+const HIST_KEY='hireflow_sessions';
+
+function computeAvgScore(){
+  const scores=S.allFeedback.filter(Boolean).map(f=>f?.scores?.overall).filter(n=>n!=null);
+  return scores.length?Math.round(scores.reduce((a,b)=>a+b,0)/scores.length):null;
+}
+
+function saveSession(){
+  if(!S.role||!S.company) return;
+  const answered=S.transcripts.filter(Boolean).length;
+  if(!answered) return; // don't save empty sessions
+  const sessions=JSON.parse(localStorage.getItem(HIST_KEY)||'[]');
+  sessions.unshift({
+    id:Date.now(),
+    date:new Date().toISOString(),
+    role:S.role, company:S.company, difficulty:S.difficulty,
+    duration:S.seconds,
+    questionsAnswered:answered,
+    totalQuestions:(S.allQuestions||S.questions).length,
+    avgScore:computeAvgScore(),
+    feedback:S.allFeedback,
+    transcripts:S.transcripts,
+    questions:(S.allQuestions||S.questions).map(q=>({text:q.text,tag:q.tag})),
+    mistakes:S.screenshots,
+  });
+  localStorage.setItem(HIST_KEY,JSON.stringify(sessions.slice(0,30)));
+  document.getElementById('btn-history').style.display='inline-flex';
+}
+
+function showHistory(){
+  const sessions=JSON.parse(localStorage.getItem(HIST_KEY)||'[]');
+  const list=document.getElementById('history-list');
+  if(!sessions.length){
+    list.innerHTML='<div style="font-size:13px;color:var(--text-secondary);font-style:italic">No sessions yet.</div>';
+  } else {
+    list.innerHTML=sessions.map((s,i)=>{
+      const d=new Date(s.date);
+      const dateStr=d.toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'});
+      const dur=`${Math.floor(s.duration/60)}m ${s.duration%60}s`;
+      const score=s.avgScore!=null?`<span class="hist-score">${s.avgScore}</span><span style="font-size:11px;color:var(--text-secondary)">/100</span>`:'<span class="hist-score" style="color:var(--text-secondary)">—</span>';
+      return `<div class="hist-card" onclick="showHistDetail(${i})">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="flex:1">
+            <div style="font-size:13px;font-weight:500">${s.role} <span style="color:var(--text-secondary);font-weight:400">@ ${s.company}</span></div>
+            <div style="font-size:11px;color:var(--text-secondary);margin-top:3px">${dateStr} · ${s.difficulty} · ${dur} · ${s.questionsAnswered}/${s.totalQuestions} answered</div>
+          </div>
+          <div style="text-align:center">${score}<div style="font-size:10px;color:var(--text-secondary)">avg score</div></div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+  showScreen('history');
+}
+
+function showHistDetail(idx){
+  const sessions=JSON.parse(localStorage.getItem(HIST_KEY)||'[]');
+  const s=sessions[idx]; if(!s) return;
+  const d=new Date(s.date).toLocaleString();
+  let html=`<div style="font-size:15px;font-weight:500;margin-bottom:4px">${s.role} @ ${s.company}</div>
+    <div style="font-size:12px;color:var(--text-secondary);margin-bottom:14px">${d} · ${s.difficulty} · ${Math.floor(s.duration/60)}m</div>`;
+  s.questions.forEach((q,i)=>{
+    const fb=s.feedback?.[i];
+    const tr=s.transcripts?.[i];
+    html+=`<div style="margin-bottom:12px;padding-bottom:12px;border-bottom:0.5px solid var(--border)">
+      <div style="font-size:12px;font-weight:500;margin-bottom:4px">Q${i+1} [${q.tag}]: ${q.text}</div>
+      ${tr?`<div style="font-size:11px;color:var(--text-secondary);font-style:italic;margin-bottom:4px">"${tr.slice(0,120)}…"</div>`:''}
+      ${fb?.scores?`<div style="font-size:11px">Overall: <b>${Math.round(fb.scores.overall)}</b> · Content: ${Math.round(fb.scores.content)} · Delivery: ${Math.round(fb.scores.delivery)} · Presence: ${Math.round(fb.scores.presence)}</div>`:''}
+    </div>`;
+  });
+  document.getElementById('modal-history-content').innerHTML=html;
+  document.getElementById('modal-history').style.display='flex';
+}
+
+function clearHistory(){
+  if(!confirm('Delete all saved sessions?')) return;
+  localStorage.removeItem(HIST_KEY);
+  document.getElementById('btn-history').style.display='none';
+  showScreen('setup');
+}
+
+function closeModal(name){
+  document.getElementById('modal-'+name).style.display='none';
+  if(name==='video'){
+    const v=document.getElementById('playback-video');
+    v.pause(); v.src='';
+  }
+}
+
+/* ═══════════════════════════════════════════
+   UTILS
+═══════════════════════════════════════════ */
+function switchTab(tab){
+  ['live','mistakes','feedback','scores','email'].forEach(t=>{
+    document.getElementById('tab-'+t)?.classList.toggle('active',t===tab);
+    document.getElementById('pane-'+t).style.display=t===tab?'flex':'none';
+  });
+}
+function showScreen(name){
+  ['setup','loading','interview','history'].forEach(s=>document.getElementById('screen-'+s).classList.remove('active'));
+  document.getElementById('screen-'+name).classList.add('active');
+}
+function goSetup(){stopInterview();showScreen('setup');}
+
+// Show History button on load if sessions exist
+(function initHistory(){
+  const sessions=JSON.parse(localStorage.getItem(HIST_KEY)||'[]');
+  if(sessions.length) document.getElementById('btn-history').style.display='inline-flex';
+})();
+</script>
+</body>
+</html>

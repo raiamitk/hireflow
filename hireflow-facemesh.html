@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HireFlow — Face Mesh Signal Engine</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg-primary:#ffffff;--bg-secondary:#f5f5f0;--bg-tertiary:#eeede8;
+  --bg-info:#e6f1fb;--bg-success:#eaf3de;--bg-warning:#faeeda;--bg-danger:#fcebeb;
+  --text-primary:#1a1a18;--text-secondary:#5f5e5a;
+  --text-info:#0c447c;--text-success:#27500a;--text-warning:#633806;--text-danger:#791f1f;
+  --border:rgba(0,0,0,0.12);--border-md:rgba(0,0,0,0.22);
+  --radius-md:8px;--radius-lg:12px;--purple:#5341C7;
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  font-size:14px;color:var(--text-primary);background:var(--bg-secondary);
+}
+@media(prefers-color-scheme:dark){
+  :root{
+    --bg-primary:#1e1e1c;--bg-secondary:#252522;--bg-tertiary:#2c2c29;
+    --bg-info:#042c53;--bg-success:#173404;--bg-warning:#412402;--bg-danger:#501313;
+    --text-primary:#e8e6de;--text-secondary:#9c9a92;
+    --text-info:#85b7eb;--text-success:#97c459;--text-warning:#ef9f27;--text-danger:#f09595;
+    --border:rgba(255,255,255,0.1);--border-md:rgba(255,255,255,0.2);
+  }
+}
+body{min-height:100vh;padding:20px}
+.app{max-width:900px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--bg-primary);border-radius:var(--radius-lg);border:0.5px solid var(--border)}
+.logo{font-size:15px;font-weight:500;display:flex;align-items:center;gap:9px}
+.logo-icon{width:28px;height:28px;border-radius:7px;background:var(--purple);display:flex;align-items:center;justify-content:center}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:var(--radius-md);font-size:13px;font-weight:500;cursor:pointer;border:0.5px solid var(--border-md);background:transparent;color:var(--text-primary);transition:background .15s,transform .1s;font-family:inherit}
+.btn:hover{background:var(--bg-secondary)}.btn:active{transform:scale(.97)}
+.btn-primary{background:var(--purple);color:#fff;border-color:var(--purple)}.btn-primary:hover{background:#4333a8}
+.btn-danger{background:#dc2626;color:#fff;border-color:#dc2626}.btn-danger:hover{background:#b91c1c}
+.card{background:var(--bg-primary);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:14px}
+.scard{background:var(--bg-secondary);border-radius:10px;padding:12px}
+.sig-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}.sig-row:last-child{margin-bottom:0}
+.sig-label{font-size:12px;color:var(--text-secondary);width:100px;flex-shrink:0}
+.bar-wrap{flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden}
+.bar-fill{height:100%;border-radius:3px;transition:width .4s ease}
+.bar-g{background:#16a34a}.bar-a{background:#d97706}.bar-r{background:#dc2626}.bar-b{background:var(--purple)}
+.sig-val{font-size:12px;font-weight:500;width:40px;text-align:right}
+.section-title{font-size:11px;color:var(--text-secondary);font-weight:500;text-transform:uppercase;letter-spacing:.04em;margin-bottom:10px}
+.lm-badge{font-size:11px;padding:2px 8px;border-radius:20px;font-weight:500}
+.lm-ok{background:#dcfce7;color:#166534}.lm-warn{background:#fef3c7;color:#92400e}.lm-err{background:#fee2e2;color:#991b1b}
+.emotion-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:8px}
+.emotion-cell{border-radius:8px;padding:8px 6px;text-align:center;border:0.5px solid var(--border);transition:all .4s ease}
+.emotion-cell .e-label{font-size:11px;color:var(--text-secondary);margin-bottom:4px}
+.emotion-cell .e-val{font-size:18px;font-weight:500}
+.emotion-cell.active-emotion{border-color:var(--purple);background:var(--bg-info)}
+.emotion-cell.active-emotion .e-label,.emotion-cell.active-emotion .e-val{color:var(--text-info)}
+.tl-row{display:flex;align-items:center;gap:8px}
+.tl-bars{flex:1;display:flex;gap:2px;align-items:flex-end;height:28px}
+.spinner{width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--purple);border-radius:50%;animation:spin .7s linear infinite;display:inline-block;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.alert-box{background:var(--bg-warning);border:0.5px solid #d97706;border-radius:var(--radius-md);padding:8px 12px;font-size:13px;display:none;align-items:center;gap:8px}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="topbar">
+    <div class="logo">
+      <div class="logo-icon">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="6" r="3" stroke="#fff" stroke-width="1.2"/><path d="M2 13c0-2.5 2.5-4 6-4s6 1.5 6 4" stroke="#fff" stroke-width="1.2" stroke-linecap="round"/></svg>
+      </div>
+      Face Mesh Signal Engine
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <span id="lm-status" class="lm-badge lm-err">Not started</span>
+      <span id="fps-badge" style="font-size:11px;color:var(--text-secondary);display:none">— fps</span>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:14px;flex-wrap:wrap">
+    <!-- Video + overlay -->
+    <div style="flex-shrink:0">
+      <div style="position:relative;background:#111;border-radius:10px;overflow:hidden;width:320px;height:240px;display:flex;align-items:center;justify-content:center">
+        <div id="no-cam" style="display:flex;flex-direction:column;align-items:center;gap:8px;color:#666">
+          <svg width="36" height="36" viewBox="0 0 40 40" fill="none"><rect x="4" y="10" width="24" height="20" rx="4" stroke="currentColor" stroke-width="1.5"/><path d="M28 16L36 12V28L28 24" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><line x1="6" y1="6" x2="34" y2="34" stroke="#ef4444" stroke-width="1.5"/></svg>
+          <span style="font-size:11px;padding:0 20px;text-align:center">Grant camera permission to start</span>
+        </div>
+        <video id="video" width="320" height="240" autoplay muted playsinline style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:10px"></video>
+        <canvas id="overlay" width="320" height="240" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;border-radius:10px"></canvas>
+        <div id="mesh-info" style="position:absolute;bottom:6px;left:6px;display:none">
+          <span id="mesh-debug" style="font-size:10px;color:#fff;background:rgba(0,0,0,.55);padding:2px 7px;border-radius:6px">landmarks: 0</span>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+        <button class="btn btn-primary" id="btn-start" onclick="startMesh()">
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.2"/><path d="M6.5 5.5L11 8L6.5 10.5V5.5Z" fill="currentColor"/></svg>
+          Start camera
+        </button>
+        <button class="btn btn-danger" id="btn-stop" onclick="stopMesh()" style="display:none">Stop</button>
+        <button class="btn" id="btn-overlay" onclick="toggleOverlay()" style="display:none">Mesh: on</button>
+        <span id="load-ind" style="display:none;align-items:center;gap:6px;font-size:12px;color:var(--text-secondary)"><span class="spinner" style="width:13px;height:13px;border-width:1.5px"></span>Loading…</span>
+      </div>
+    </div>
+
+    <!-- Signals -->
+    <div style="flex:1;min-width:220px;display:flex;flex-direction:column;gap:10px">
+      <div class="scard">
+        <div class="section-title">Live facial signals</div>
+        <div class="sig-row"><span class="sig-label">Eye contact</span><div class="bar-wrap"><div class="bar-fill bar-g" id="b-eye" style="width:0%"></div></div><span class="sig-val" id="v-eye">—</span></div>
+        <div class="sig-row"><span class="sig-label">Confidence</span><div class="bar-wrap"><div class="bar-fill bar-g" id="b-conf" style="width:0%"></div></div><span class="sig-val" id="v-conf">—</span></div>
+        <div class="sig-row"><span class="sig-label">Stress index</span><div class="bar-wrap"><div class="bar-fill bar-a" id="b-stress" style="width:0%"></div></div><span class="sig-val" id="v-stress">—</span></div>
+        <div class="sig-row"><span class="sig-label">Engagement</span><div class="bar-wrap"><div class="bar-fill bar-b" id="b-engage" style="width:0%"></div></div><span class="sig-val" id="v-engage">—</span></div>
+        <div class="sig-row"><span class="sig-label">Smile freq.</span><div class="bar-wrap"><div class="bar-fill bar-g" id="b-smile" style="width:0%"></div></div><span class="sig-val" id="v-smile">—</span></div>
+        <div class="sig-row"><span class="sig-label">Brow furrow</span><div class="bar-wrap"><div class="bar-fill bar-r" id="b-brow" style="width:0%"></div></div><span class="sig-val" id="v-brow">—</span></div>
+      </div>
+      <div class="scard">
+        <div class="section-title">Dominant emotion</div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="font-size:22px;font-weight:500;color:var(--purple)" id="emotion-label">—</div>
+          <div style="font-size:12px;color:var(--text-secondary)" id="emotion-conf"></div>
+        </div>
+        <div class="emotion-grid">
+          <div class="emotion-cell" id="ec-confident"><div class="e-label">Confident</div><div class="e-val" id="ev-confident">0</div></div>
+          <div class="emotion-cell" id="ec-anxious"><div class="e-label">Anxious</div><div class="e-val" id="ev-anxious">0</div></div>
+          <div class="emotion-cell" id="ec-neutral"><div class="e-label">Neutral</div><div class="e-val" id="ev-neutral">0</div></div>
+          <div class="emotion-cell" id="ec-distracted"><div class="e-label">Distracted</div><div class="e-val" id="ev-distracted">0</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Alert -->
+  <div class="alert-box" id="alert-box">
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 2L14 13H2L8 2Z" stroke="#d97706" stroke-width="1.2" stroke-linejoin="round"/><path d="M8 7V10M8 12V12.5" stroke="#d97706" stroke-width="1.2" stroke-linecap="round"/></svg>
+    <span id="alert-text"></span>
+  </div>
+
+  <!-- Timeline -->
+  <div class="card">
+    <div class="section-title">Signal timeline (last 60 frames)</div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div class="tl-row"><span style="font-size:11px;color:var(--text-secondary);width:80px">Eye contact</span><div class="tl-bars" id="tl-eye"></div></div>
+      <div class="tl-row"><span style="font-size:11px;color:var(--text-secondary);width:80px">Confidence</span><div class="tl-bars" id="tl-conf"></div></div>
+      <div class="tl-row"><span style="font-size:11px;color:var(--text-secondary);width:80px">Stress</span><div class="tl-bars" id="tl-stress"></div></div>
+    </div>
+  </div>
+
+  <!-- How it works -->
+  <div class="scard" style="font-size:12px;color:var(--text-secondary);line-height:1.6">
+    <div style="font-weight:500;color:var(--text-primary);margin-bottom:8px">How signals are computed from 468 landmarks</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px 20px">
+      <div><strong style="color:var(--text-primary)">Eye contact</strong> — iris offset from eye centre, normalised by eye width. Both eyes averaged over 15 frames.</div>
+      <div><strong style="color:var(--text-primary)">Brow furrow</strong> — inner brow (lm 22/52) distance from nose bridge (lm 168), normalised by face height.</div>
+      <div><strong style="color:var(--text-primary)">Smile</strong> — lip corner distance (lm 61/291) normalised by face width. Rolling 20-frame average.</div>
+      <div><strong style="color:var(--text-primary)">Confidence</strong> — 0.4×eye + 0.3×(1−stress) + 0.3×smile.</div>
+      <div><strong style="color:var(--text-primary)">Stress</strong> — 0.5×brow + 0.3×(1−eye) + 0.2×(1−engagement).</div>
+      <div><strong style="color:var(--text-primary)">Engagement</strong> — head pose yaw/pitch deviation from neutral (nose tip vs nose base).</div>
+    </div>
+    <div style="margin-top:8px;padding-top:8px;border-top:0.5px solid var(--border)">
+      While running, all signals are written to <code style="background:var(--bg-tertiary);padding:1px 4px;border-radius:4px">window.HireFlowFaceSignals</code> — plug this into <strong style="color:var(--text-primary)">hireflow-v2.html</strong> by enabling Face Mesh in the interview screen.
+    </div>
+  </div>
+
+</div>
+<script>
+const MEDIAPIPE_CDN='https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh@0.4.1633559619/';
+let faceMesh=null,running=false,showOverlay=true,animFrame=null;
+let frameCount=0,lastFps=0,fpsTimer=0,alertCooldown=false;
+let smileHist=[],eyeHist=[],tlEye=[],tlConf=[],tlStress=[];
+const TL_MAX=60;
+
+function clamp(v,mn,mx){return Math.max(mn,Math.min(mx,v));}
+function pct(v){return Math.round(clamp(v*100,0,100));}
+
+async function startMesh(){
+  document.getElementById('btn-start').style.display='none';
+  document.getElementById('load-ind').style.display='flex';
+  document.getElementById('lm-status').textContent='Loading…';
+  document.getElementById('lm-status').className='lm-badge lm-warn';
+  try{
+    await loadMediaPipe();
+    const stream=await navigator.mediaDevices.getUserMedia({video:{width:320,height:240,facingMode:'user'},audio:false});
+    const video=document.getElementById('video');
+    video.srcObject=stream; video.style.display='block';
+    document.getElementById('no-cam').style.display='none';
+    await new Promise(r=>video.onloadedmetadata=r);
+    faceMesh.onResults(onResults);
+    running=true;
+    document.getElementById('load-ind').style.display='none';
+    document.getElementById('btn-stop').style.display='inline-flex';
+    document.getElementById('btn-overlay').style.display='inline-flex';
+    document.getElementById('lm-status').textContent='Tracking';
+    document.getElementById('lm-status').className='lm-badge lm-ok';
+    document.getElementById('mesh-info').style.display='block';
+    initTimelines(); fpsTimer=performance.now(); runLoop(video);
+  }catch(e){
+    document.getElementById('load-ind').style.display='none';
+    document.getElementById('btn-start').style.display='inline-flex';
+    document.getElementById('lm-status').textContent='Error: '+e.message.slice(0,40);
+    document.getElementById('lm-status').className='lm-badge lm-err';
+  }
+}
+
+async function loadMediaPipe(){
+  if(window.FaceMesh&&faceMesh) return;
+  return new Promise((resolve,reject)=>{
+    const s=document.createElement('script');
+    s.src=MEDIAPIPE_CDN+'face_mesh.js';
+    s.onload=()=>{
+      faceMesh=new FaceMesh({locateFile:f=>MEDIAPIPE_CDN+f});
+      faceMesh.setOptions({maxNumFaces:1,refineLandmarks:true,minDetectionConfidence:0.5,minTrackingConfidence:0.5});
+      resolve();
+    };
+    s.onerror=()=>reject(new Error('MediaPipe CDN unavailable — check internet connection'));
+    document.head.appendChild(s);
+  });
+}
+
+async function runLoop(video){
+  if(!running) return;
+  await faceMesh.send({image:video});
+  animFrame=requestAnimationFrame(()=>runLoop(video));
+  frameCount++;
+  const now=performance.now();
+  if(now-fpsTimer>1000){
+    lastFps=Math.round(frameCount*1000/(now-fpsTimer));
+    frameCount=0; fpsTimer=now;
+    const fb=document.getElementById('fps-badge');
+    fb.textContent=lastFps+' fps'; fb.style.display='inline';
+  }
+}
+
+function onResults(results){
+  const canvas=document.getElementById('overlay');
+  const ctx=canvas.getContext('2d');
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  if(!results.multiFaceLandmarks||!results.multiFaceLandmarks.length){
+    document.getElementById('lm-status').textContent='No face';
+    document.getElementById('lm-status').className='lm-badge lm-warn';
+    document.getElementById('mesh-debug').textContent='landmarks: 0';
+    setSignals(null); return;
+  }
+  document.getElementById('lm-status').textContent='Tracking';
+  document.getElementById('lm-status').className='lm-badge lm-ok';
+  const lm=results.multiFaceLandmarks[0];
+  document.getElementById('mesh-debug').textContent='landmarks: '+lm.length;
+  if(showOverlay) drawMesh(ctx,lm,canvas.width,canvas.height);
+  const sig=computeSignals(lm);
+  setSignals(sig); updateTimeline(sig); checkAlerts(sig);
+}
+
+function drawMesh(ctx,lm,W,H){
+  const EDGES=[[33,133],[362,263],[61,291],[21,54],[251,284],[10,152],[234,454],[1,168],
+    [33,7],[7,163],[163,144],[144,145],[145,153],[153,154],[154,155],[155,133],
+    [362,382],[382,381],[381,380],[380,374],[374,373],[373,390],[390,249],[249,263]];
+  ctx.strokeStyle='rgba(83,74,183,0.4)'; ctx.lineWidth=0.8;
+  EDGES.forEach(([a,b])=>{
+    if(!lm[a]||!lm[b]) return;
+    ctx.beginPath(); ctx.moveTo(lm[a].x*W,lm[a].y*H); ctx.lineTo(lm[b].x*W,lm[b].y*H); ctx.stroke();
+  });
+  [33,133,362,263,1,61,291,21,22,52,53,10,152,234,454].forEach(i=>{
+    if(!lm[i]) return;
+    ctx.beginPath(); ctx.arc(lm[i].x*W,lm[i].y*H,2.5,0,Math.PI*2);
+    ctx.fillStyle='rgba(83,74,183,0.85)'; ctx.fill();
+  });
+  [468,469,470,471,472,473,474,475,476,477].forEach(i=>{
+    if(!lm[i]) return;
+    ctx.beginPath(); ctx.arc(lm[i].x*W,lm[i].y*H,2,0,Math.PI*2);
+    ctx.fillStyle='rgba(220,60,60,0.85)'; ctx.fill();
+  });
+}
+
+function computeSignals(lm){
+  const faceH=Math.abs(lm[10].y-lm[152].y),faceW=Math.abs(lm[234].x-lm[454].x);
+  if(faceH<0.01||faceW<0.01) return null;
+  const ecL={x:(lm[33].x+lm[133].x)/2,y:(lm[33].y+lm[133].y)/2};
+  const ecR={x:(lm[362].x+lm[263].x)/2,y:(lm[362].y+lm[263].y)/2};
+  const ewL=Math.abs(lm[133].x-lm[33].x),ewR=Math.abs(lm[263].x-lm[362].x);
+  const iL=lm[468]||ecL,iR=lm[473]||ecR;
+  const offL=Math.sqrt((iL.x-ecL.x)**2+(iL.y-ecL.y)**2);
+  const offR=Math.sqrt((iR.x-ecR.x)**2+(iR.y-ecR.y)**2);
+  eyeHist.push(((clamp(1-offL/(ewL*0.35),0,1))+(clamp(1-offR/(ewR*0.35),0,1)))/2);
+  if(eyeHist.length>15) eyeHist.shift();
+  const eye=eyeHist.reduce((a,b)=>a+b)/eyeHist.length;
+  const lipD=Math.abs(lm[61].x-lm[291].x);
+  smileHist.push(clamp((lipD/faceW-0.38)/0.2,0,1));
+  if(smileHist.length>20) smileHist.shift();
+  const smile=smileHist.reduce((a,b)=>a+b)/smileHist.length;
+  const brow=clamp(1-(Math.abs(lm[22].y-lm[168].y)+Math.abs(lm[52].y-lm[168].y))/faceH*3,0,1);
+  const yaw=(lm[1].x-lm[168].x)/faceW,pitch=(lm[1].y-lm[168].y)/faceH;
+  const engage=clamp(1-Math.sqrt(yaw**2+pitch**2)*4,0,1);
+  const stress=clamp(0.5*brow+0.3*(1-eye)+0.2*(1-engage),0,1);
+  const conf=clamp(0.4*eye+0.3*(1-stress)+0.3*smile,0,1);
+  const scores={
+    confident:clamp(0.5*conf+0.3*eye+0.2*smile,0,1),
+    anxious:clamp(0.5*stress+0.3*brow+0.2*(1-eye),0,1),
+    neutral:clamp(0.4*(1-Math.abs(conf-0.5)*2)+0.3*(1-stress)+0.3*(1-smile),0,1),
+    distracted:clamp(0.6*(1-engage)+0.4*(1-eye),0,1),
+  };
+  return{eyeContact:eye,confidence:conf,stress,engagement:engage,smile,browFurrow:brow,scores};
+}
+
+function setSignals(s){
+  if(!s){
+    ['eye','conf','stress','engage','smile','brow'].forEach(k=>{
+      document.getElementById('b-'+k).style.width='0%';
+      document.getElementById('v-'+k).textContent='—';
+    });
+    document.getElementById('emotion-label').textContent='—';
+    document.getElementById('emotion-conf').textContent='';
+    return;
+  }
+  const set=(id,val,cls)=>{
+    const b=document.getElementById('b-'+id),v=document.getElementById('v-'+id);
+    b.style.width=pct(val)+'%'; b.className='bar-fill bar-'+cls;
+    v.textContent=pct(val)+'%';
+  };
+  set('eye',s.eyeContact,s.eyeContact>0.6?'g':s.eyeContact>0.4?'a':'r');
+  set('conf',s.confidence,s.confidence>0.55?'g':'a');
+  set('stress',s.stress,s.stress<0.35?'g':s.stress<0.6?'a':'r');
+  set('engage',s.engagement,s.engagement>0.6?'b':'a');
+  set('smile',s.smile,'g');
+  set('brow',s.browFurrow,s.browFurrow<0.3?'g':s.browFurrow<0.6?'a':'r');
+  const emotions=['confident','anxious','neutral','distracted'];
+  let dominant='neutral',domScore=0;
+  emotions.forEach(e=>{
+    const v=pct(s.scores[e]);
+    document.getElementById('ev-'+e).textContent=v;
+    document.getElementById('ec-'+e).classList.remove('active-emotion');
+    if(s.scores[e]>domScore){domScore=s.scores[e];dominant=e;}
+  });
+  document.getElementById('ec-'+dominant).classList.add('active-emotion');
+  document.getElementById('emotion-label').textContent=dominant.charAt(0).toUpperCase()+dominant.slice(1);
+  document.getElementById('emotion-conf').textContent=pct(domScore)+'% confidence';
+  window.HireFlowFaceSignals={
+    eyeContact:pct(s.eyeContact),confidence:pct(s.confidence),
+    stress:pct(s.stress),engagement:pct(s.engagement),
+    smile:pct(s.smile),browFurrow:pct(s.browFurrow),
+    dominantEmotion:dominant,
+    emotionScores:{confident:pct(s.scores.confident),anxious:pct(s.scores.anxious),neutral:pct(s.scores.neutral),distracted:pct(s.scores.distracted)},
+    timestamp:Date.now()
+  };
+}
+
+function initTimelines(){
+  ['tl-eye','tl-conf','tl-stress'].forEach(id=>{
+    const el=document.getElementById(id); el.innerHTML='';
+    for(let i=0;i<TL_MAX;i++){
+      const b=document.createElement('div');
+      b.style.cssText='flex:1;height:3px;border-radius:1px;background:var(--border);transition:height .3s ease,background .3s ease';
+      el.appendChild(b);
+    }
+  });
+  tlEye=[];tlConf=[];tlStress=[];
+}
+
+function updateTimeline(s){
+  if(!s) return;
+  tlEye.push(s.eyeContact); if(tlEye.length>TL_MAX) tlEye.shift();
+  tlConf.push(s.confidence); if(tlConf.length>TL_MAX) tlConf.shift();
+  tlStress.push(s.stress); if(tlStress.length>TL_MAX) tlStress.shift();
+  const paint=(id,data,col)=>{
+    const bars=document.getElementById(id).children;
+    data.forEach((v,i)=>{if(bars[i]){bars[i].style.height=Math.round(3+v*25)+'px';bars[i].style.background=col;}});
+  };
+  paint('tl-eye',tlEye,'#16a34a');
+  paint('tl-conf',tlConf,'#5341C7');
+  paint('tl-stress',tlStress,'#d97706');
+}
+
+function checkAlerts(s){
+  if(!s||alertCooldown) return;
+  let msg=null;
+  if(s.eyeContact<0.35) msg='Low eye contact — look directly at the camera.';
+  else if(s.stress>0.7) msg='High stress detected — try a slow breath to reset.';
+  else if(s.browFurrow>0.7) msg='Brow furrow detected — relax your forehead muscles.';
+  else if(s.engagement<0.3) msg='Head turned away — face the camera directly.';
+  if(!msg) return;
+  const box=document.getElementById('alert-box');
+  document.getElementById('alert-text').textContent=msg;
+  box.style.display='flex'; alertCooldown=true;
+  setTimeout(()=>{box.style.display='none';alertCooldown=false;},6000);
+}
+
+function stopMesh(){
+  running=false;
+  if(animFrame){cancelAnimationFrame(animFrame);animFrame=null;}
+  const video=document.getElementById('video');
+  if(video.srcObject) video.srcObject.getTracks().forEach(t=>t.stop());
+  video.style.display='none'; document.getElementById('no-cam').style.display='flex';
+  document.getElementById('btn-stop').style.display='none';
+  document.getElementById('btn-overlay').style.display='none';
+  document.getElementById('btn-start').style.display='inline-flex';
+  document.getElementById('fps-badge').style.display='none';
+  document.getElementById('mesh-info').style.display='none';
+  document.getElementById('lm-status').textContent='Stopped';
+  document.getElementById('lm-status').className='lm-badge lm-err';
+  setSignals(null);
+}
+
+function toggleOverlay(){
+  showOverlay=!showOverlay;
+  document.getElementById('btn-overlay').textContent='Mesh: '+(showOverlay?'on':'off');
+  if(!showOverlay) document.getElementById('overlay').getContext('2d').clearRect(0,0,320,240);
+}
+</script>
+</body>
+</html>
