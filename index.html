@@ -4,198 +4,244 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>HireFlow v2 — AI Mock Interview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   /* ── Reset & base ── */
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
     --bg-primary: #ffffff;
-    --bg-secondary: #f5f5f0;
-    --bg-tertiary: #eeede8;
-    --bg-info: #e6f1fb;
-    --bg-success: #eaf3de;
-    --bg-warning: #faeeda;
-    --bg-danger: #fcebeb;
-    --text-primary: #1a1a18;
-    --text-secondary: #5f5e5a;
-    --text-info: #0c447c;
-    --text-success: #27500a;
-    --text-warning: #633806;
-    --text-danger: #791f1f;
-    --border: rgba(0,0,0,0.12);
-    --border-md: rgba(0,0,0,0.22);
-    --radius-md: 8px;
-    --radius-lg: 12px;
-    --purple: #5341C7;
-    --purple-dark: #4333a8;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --bg-secondary: #f5f4ff;
+    --bg-tertiary: #ede9fe;
+    --bg-info: #eff6ff;
+    --bg-success: #f0fdf4;
+    --bg-warning: #fffbeb;
+    --bg-danger: #fef2f2;
+    --text-primary: #0d0b1e;
+    --text-secondary: #6b7280;
+    --text-info: #1d4ed8;
+    --text-success: #15803d;
+    --text-warning: #92400e;
+    --text-danger: #991b1b;
+    --border: rgba(109,100,235,0.12);
+    --border-md: rgba(109,100,235,0.22);
+    --radius-md: 10px;
+    --radius-lg: 14px;
+    --purple: #6d64eb;
+    --purple-dark: #5a51d6;
+    --purple-light: #ede9fe;
+    --shadow-sm: 0 1px 3px rgba(109,100,235,.07), 0 1px 2px rgba(0,0,0,.04);
+    --shadow: 0 2px 8px rgba(109,100,235,.1), 0 1px 3px rgba(0,0,0,.05);
+    --shadow-lg: 0 8px 30px rgba(109,100,235,.18);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     font-size: 14px;
     color: var(--text-primary);
     background: var(--bg-secondary);
   }
   @media (prefers-color-scheme: dark) {
     :root {
-      --bg-primary: #1e1e1c;
-      --bg-secondary: #252522;
-      --bg-tertiary: #2c2c29;
-      --bg-info: #042c53;
-      --bg-success: #173404;
-      --bg-warning: #412402;
-      --bg-danger: #501313;
-      --text-primary: #e8e6de;
-      --text-secondary: #9c9a92;
-      --text-info: #85b7eb;
-      --text-success: #97c459;
-      --text-warning: #ef9f27;
-      --text-danger: #f09595;
-      --border: rgba(255,255,255,0.1);
-      --border-md: rgba(255,255,255,0.2);
+      --bg-primary: #13111f;
+      --bg-secondary: #1a1828;
+      --bg-tertiary: #211e32;
+      --bg-info: #0c1a3d;
+      --bg-success: #052e16;
+      --bg-warning: #1c1002;
+      --bg-danger: #1f0808;
+      --text-primary: #f0eeff;
+      --text-secondary: #9089b8;
+      --text-info: #93b4fb;
+      --text-success: #86efac;
+      --text-warning: #fcd34d;
+      --text-danger: #fca5a5;
+      --border: rgba(109,100,235,0.18);
+      --border-md: rgba(109,100,235,0.3);
+      --purple: #8b82ff;
+      --purple-dark: #6d64eb;
+      --purple-light: #1e1a3a;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,.3);
+      --shadow: 0 2px 8px rgba(0,0,0,.35);
+      --shadow-lg: 0 8px 30px rgba(0,0,0,.5);
     }
   }
 
   body { min-height: 100vh; display: flex; flex-direction: column; }
-  .app { display: flex; flex-direction: column; min-height: 100vh; max-width: 1100px; margin: 0 auto; width: 100%; background: var(--bg-primary); }
+  .app { display: flex; flex-direction: column; min-height: 100vh; max-width: 1100px; margin: 0 auto; width: 100%; background: var(--bg-primary); box-shadow: 0 0 0 1px var(--border); }
 
   /* ── Topbar ── */
-  .topbar { display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; border-bottom: 0.5px solid var(--border); background: var(--bg-primary); }
-  .logo { font-size: 15px; font-weight: 500; display: flex; align-items: center; gap: 9px; }
-  .logo-icon { width: 28px; height: 28px; border-radius: 7px; background: var(--purple); display: flex; align-items: center; justify-content: center; }
-  .badge { font-size: 11px; padding: 2px 9px; border-radius: 20px; font-weight: 500; }
+  .topbar { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; border-bottom: 1px solid var(--border); background: var(--bg-primary); }
+  .logo { font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 9px; letter-spacing: -0.01em; }
+  .logo-icon { width: 30px; height: 30px; border-radius: 8px; background: linear-gradient(135deg, var(--purple), #4f46e5); display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(109,100,235,.4); }
+  .badge { font-size: 11px; padding: 3px 9px; border-radius: 20px; font-weight: 600; }
   .badge-rec { background: var(--bg-danger); color: var(--text-danger); animation: pulse 1.4s ease-in-out infinite; }
   .badge-ready { background: var(--bg-success); color: var(--text-success); }
   .badge-info { background: var(--bg-info); color: var(--text-info); }
   .badge-muted { background: var(--bg-secondary); color: var(--text-secondary); }
 
+  /* ── Setup hero ── */
+  .setup-hero { background: linear-gradient(135deg, #4f46e5 0%, #6d64eb 40%, #8b5cf6 70%, #a78bfa 100%); padding: 40px 24px 48px; text-align: center; position: relative; overflow: hidden; }
+  .setup-hero::before { content:''; position:absolute; inset:0; background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); }
+  .setup-hero-title { font-size: 28px; font-weight: 700; color: #fff; margin-bottom: 8px; letter-spacing: -0.02em; position: relative; }
+  .setup-hero-sub { font-size: 14px; color: rgba(255,255,255,.75); position: relative; max-width: 360px; margin: 0 auto; line-height: 1.6; }
+  .setup-hero-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.25); border-radius: 20px; padding: 4px 12px; font-size: 12px; color: #fff; margin-bottom: 16px; backdrop-filter: blur(8px); }
+
+  /* ── Step indicators ── */
+  .step-nav { display: flex; align-items: center; justify-content: center; gap: 0; margin-bottom: 28px; }
+  .step-item { display: flex; align-items: center; }
+  .step-circle { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; border: 2px solid var(--border-md); background: var(--bg-primary); color: var(--text-secondary); transition: all .3s; flex-shrink: 0; }
+  .step-circle.active { background: var(--purple); border-color: var(--purple); color: #fff; box-shadow: 0 0 0 4px rgba(109,100,235,.15); }
+  .step-circle.done { background: #16a34a; border-color: #16a34a; color: #fff; }
+  .step-line { width: 48px; height: 2px; background: var(--border-md); transition: background .3s; }
+  .step-line.done { background: #16a34a; }
+
+  /* ── Setup card ── */
+  .setup-card { background: var(--bg-primary); border-radius: 18px; box-shadow: var(--shadow-lg); border: 1px solid var(--border); margin: -24px 20px 0; position: relative; padding: 24px; }
+
   /* ── Buttons ── */
-  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: var(--radius-md); font-size: 13px; font-weight: 500; cursor: pointer; border: 0.5px solid var(--border-md); background: transparent; color: var(--text-primary); transition: background .15s, transform .1s; font-family: inherit; }
-  .btn:hover { background: var(--bg-secondary); }
+  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: var(--radius-md); font-size: 13px; font-weight: 500; cursor: pointer; border: 1px solid var(--border-md); background: transparent; color: var(--text-primary); transition: all .15s; font-family: inherit; }
+  .btn:hover { background: var(--bg-secondary); border-color: var(--purple); }
   .btn:active { transform: scale(.97); }
-  .btn-primary { background: var(--purple); color: #fff; border-color: var(--purple); }
-  .btn-primary:hover { background: var(--purple-dark); }
-  .btn-danger { background: #dc2626; color: #fff; border-color: #dc2626; }
-  .btn-danger:hover { background: #b91c1c; }
-  .btn-warn { background: #d97706; color: #fff; border-color: #d97706; }
-  .btn-warn:hover { background: #b45309; }
-  .btn-sm { padding: 5px 10px; font-size: 12px; }
+  .btn-primary { background: linear-gradient(135deg, var(--purple), #4f46e5); color: #fff; border-color: transparent; box-shadow: 0 2px 8px rgba(109,100,235,.35); }
+  .btn-primary:hover { background: linear-gradient(135deg, var(--purple-dark), #4338ca); border-color: transparent; box-shadow: 0 4px 14px rgba(109,100,235,.45); }
+  .btn-danger { background: linear-gradient(135deg, #ef4444, #dc2626); color: #fff; border-color: transparent; box-shadow: 0 2px 6px rgba(220,38,38,.3); }
+  .btn-danger:hover { background: linear-gradient(135deg, #dc2626, #b91c1c); }
+  .btn-warn { background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; border-color: transparent; }
+  .btn-warn:hover { background: linear-gradient(135deg, #d97706, #b45309); }
+  .btn-sm { padding: 5px 12px; font-size: 12px; border-radius: 8px; }
 
   /* ── Forms ── */
-  input, textarea, select { background: var(--bg-primary); color: var(--text-primary); border: 0.5px solid var(--border-md); border-radius: var(--radius-md); font-size: 13px; padding: 8px 10px; width: 100%; font-family: inherit; }
-  input:focus, textarea:focus, select:focus { outline: none; border-color: var(--purple); }
-  label { font-size: 12px; color: var(--text-secondary); display: block; margin-bottom: 4px; }
+  input, textarea, select { background: var(--bg-primary); color: var(--text-primary); border: 1.5px solid var(--border-md); border-radius: var(--radius-md); font-size: 13px; padding: 9px 12px; width: 100%; font-family: inherit; transition: border-color .15s, box-shadow .15s; }
+  input:focus, textarea:focus, select:focus { outline: none; border-color: var(--purple); box-shadow: 0 0 0 3px rgba(109,100,235,.12); }
+  label { font-size: 12px; color: var(--text-secondary); display: block; margin-bottom: 5px; font-weight: 500; }
 
   /* ── Cards ── */
-  .card { background: var(--bg-primary); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 14px; }
+  .card { background: var(--bg-primary); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 14px; box-shadow: var(--shadow-sm); }
   .scard { background: var(--bg-secondary); border-radius: 10px; padding: 12px; }
 
   /* ── Signals ── */
-  .sig-row { display: flex; align-items: center; gap: 8px; margin-bottom: 7px; }
+  .sig-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
   .sig-row:last-child { margin-bottom: 0; }
   .sig-label { font-size: 12px; color: var(--text-secondary); width: 88px; flex-shrink: 0; }
   .bar-wrap { flex: 1; height: 5px; background: var(--border); border-radius: 3px; overflow: hidden; }
   .bar-fill { height: 100%; border-radius: 3px; transition: width 1.4s ease; }
-  .bar-g { background: #16a34a; }
-  .bar-a { background: #d97706; }
-  .bar-r { background: #dc2626; }
-  .bar-b { background: var(--purple); }
-  .sig-val { font-size: 12px; font-weight: 500; width: 38px; text-align: right; }
+  .bar-g { background: linear-gradient(90deg,#16a34a,#4ade80); }
+  .bar-a { background: linear-gradient(90deg,#d97706,#fbbf24); }
+  .bar-r { background: linear-gradient(90deg,#dc2626,#f87171); }
+  .bar-b { background: linear-gradient(90deg,var(--purple),#a78bfa); }
+  .sig-val { font-size: 12px; font-weight: 600; width: 38px; text-align: right; }
 
   /* ── Tabs ── */
-  .tabs { display: flex; border-bottom: 0.5px solid var(--border); margin-bottom: 10px; }
-  .tab { padding: 6px 12px; font-size: 13px; cursor: pointer; color: var(--text-secondary); border-bottom: 2px solid transparent; margin-bottom: -0.5px; transition: color .15s; }
-  .tab.active { color: var(--text-primary); border-bottom-color: var(--purple); font-weight: 500; }
+  .tabs { display: flex; border-bottom: 1px solid var(--border); margin-bottom: 10px; gap: 2px; padding: 0 2px; }
+  .tab { padding: 8px 12px; font-size: 13px; cursor: pointer; color: var(--text-secondary); border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all .15s; border-radius: 6px 6px 0 0; font-weight: 500; }
+  .tab:hover { color: var(--text-primary); background: var(--bg-secondary); }
+  .tab.active { color: var(--purple); border-bottom-color: var(--purple); font-weight: 600; }
 
   /* ── Layout ── */
   .main { display: flex; flex: 1; min-height: 0; }
-  .left-col { flex: 0 0 300px; padding: 12px; display: flex; flex-direction: column; gap: 10px; border-right: 0.5px solid var(--border); }
+  .left-col { flex: 0 0 300px; padding: 12px; display: flex; flex-direction: column; gap: 10px; border-right: 1px solid var(--border); }
   .right-col { flex: 1; padding: 12px; display: flex; flex-direction: column; gap: 10px; overflow: hidden; min-width: 0; }
 
   /* ── Video ── */
-  .video-wrap { position: relative; background: #111; border-radius: 10px; overflow: hidden; aspect-ratio: 4/3; display: flex; align-items: center; justify-content: center; }
+  .video-wrap { position: relative; background: linear-gradient(135deg,#0d0b1e,#1a1035); border-radius: 12px; overflow: hidden; aspect-ratio: 4/3; display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow); }
   #webcam { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: none; }
   #face-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: none; pointer-events: none; }
-  .cam-label { position: absolute; top: 7px; left: 8px; font-size: 10px; color: #fff; background: rgba(0,0,0,.5); padding: 2px 7px; border-radius: 20px; }
-  .rec-badge { position: absolute; top: 7px; right: 8px; font-size: 10px; color: #ef4444; background: rgba(0,0,0,.5); padding: 2px 7px; border-radius: 20px; display: none; align-items: center; gap: 4px; }
+  .cam-label { position: absolute; top: 7px; left: 8px; font-size: 10px; color: #fff; background: rgba(0,0,0,.5); padding: 2px 8px; border-radius: 20px; font-weight: 500; backdrop-filter: blur(4px); }
+  .rec-badge { position: absolute; top: 7px; right: 8px; font-size: 10px; color: #ef4444; background: rgba(0,0,0,.6); padding: 2px 8px; border-radius: 20px; display: none; align-items: center; gap: 4px; backdrop-filter: blur(4px); }
   .rec-dot { width: 6px; height: 6px; border-radius: 50%; background: #ef4444; animation: pulse 1s ease-in-out infinite; display: inline-block; }
 
   /* ── Transcript ── */
-  .transcript-wrap { background: var(--bg-secondary); border-radius: 10px; padding: 10px; min-height: 80px; max-height: 120px; overflow-y: auto; }
-  .filler { color: #d97706; font-weight: 500; }
-  .cursor { display: inline-block; width: 2px; height: 13px; background: var(--text-secondary); margin-left: 2px; vertical-align: middle; animation: blink .7s step-end infinite; }
+  .transcript-wrap { background: var(--bg-secondary); border-radius: 10px; padding: 12px; min-height: 80px; max-height: 120px; overflow-y: auto; border: 1px solid var(--border); }
+  .filler { color: #f59e0b; font-weight: 600; background: rgba(245,158,11,.1); border-radius: 3px; padding: 0 2px; }
+  .cursor { display: inline-block; width: 2px; height: 13px; background: var(--purple); margin-left: 2px; vertical-align: middle; animation: blink .7s step-end infinite; }
 
   /* ── Score grid ── */
-  .score-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
-  .score-cell { background: var(--bg-secondary); border-radius: var(--radius-md); padding: 10px; text-align: center; }
-  .score-cell .lbl { font-size: 11px; color: var(--text-secondary); margin-bottom: 3px; }
-  .score-big { font-size: 26px; font-weight: 500; }
+  .score-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+  .score-cell { background: var(--bg-secondary); border-radius: var(--radius-md); padding: 12px; text-align: center; border: 1px solid var(--border); transition: transform .2s, box-shadow .2s; }
+  .score-cell:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+  .score-cell .lbl { font-size: 11px; color: var(--text-secondary); margin-bottom: 4px; font-weight: 500; text-transform: uppercase; letter-spacing: .04em; }
+  .score-big { font-size: 28px; font-weight: 700; }
 
   /* ── Feedback ── */
   .fb-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
 
   /* ── Screenshot strip ── */
   .ss-strip { display: flex; gap: 8px; overflow-x: auto; padding: 4px 0; }
-  .ss-item { flex-shrink: 0; width: 120px; border-radius: 8px; border: 0.5px solid var(--border-md); overflow: hidden; position: relative; }
-  .ss-badge { position: absolute; top: 4px; left: 4px; font-size: 10px; padding: 1px 5px; border-radius: 4px; font-weight: 500; }
-  .ss-lbl { font-size: 10px; padding: 3px 6px; color: var(--text-secondary); background: var(--bg-secondary); border-top: 0.5px solid var(--border); }
+  .ss-item { flex-shrink: 0; width: 120px; border-radius: 10px; border: 1px solid var(--border-md); overflow: hidden; position: relative; box-shadow: var(--shadow-sm); }
+  .ss-badge { position: absolute; top: 4px; left: 4px; font-size: 10px; padding: 1px 6px; border-radius: 5px; font-weight: 600; }
+  .ss-lbl { font-size: 10px; padding: 4px 6px; color: var(--text-secondary); background: var(--bg-secondary); border-top: 1px solid var(--border); }
 
   /* ── Upload zone ── */
-  .upload-zone { border: 1.5px dashed var(--border-md); border-radius: 10px; padding: 20px; text-align: center; cursor: pointer; transition: border-color .2s; }
-  .upload-zone:hover { border-color: var(--purple); }
-  .upload-zone.has-file { border-color: #16a34a; background: var(--bg-success); }
-
-  /* ── Setup steps ── */
-  .step-dots { display: flex; gap: 6px; justify-content: center; margin-bottom: 16px; }
-  .step-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border-md); }
-  .step-dot.active { background: var(--purple); }
-  .step-dot.done { background: #16a34a; }
+  .upload-zone { border: 2px dashed var(--border-md); border-radius: 12px; padding: 24px; text-align: center; cursor: pointer; transition: all .2s; }
+  .upload-zone:hover { border-color: var(--purple); background: var(--purple-light); }
+  .upload-zone.has-file { border-color: #16a34a; background: var(--bg-success); border-style: solid; }
 
   /* ── Q pills ── */
-  .q-pill { padding: 3px 10px; border-radius: 20px; font-size: 12px; border: 0.5px solid var(--border); cursor: pointer; background: transparent; color: var(--text-secondary); font-family: inherit; transition: all .15s; }
-  .q-pill.active { background: var(--purple); color: #fff; border-color: var(--purple); }
-  .q-pill:hover:not(.active) { background: var(--bg-secondary); }
+  .q-pill { padding: 4px 12px; border-radius: 20px; font-size: 12px; border: 1.5px solid var(--border-md); cursor: pointer; background: transparent; color: var(--text-secondary); font-family: inherit; transition: all .15s; font-weight: 500; }
+  .q-pill.active { background: var(--purple); color: #fff; border-color: var(--purple); box-shadow: 0 2px 6px rgba(109,100,235,.3); }
+  .q-pill:hover:not(.active) { background: var(--bg-secondary); border-color: var(--purple); color: var(--purple); }
 
   /* ── Waveform ── */
   .wf-bar { width: 3px; border-radius: 2px; background: var(--border); transition: height .12s ease; }
 
   /* ── Retake banner ── */
-  .retake-banner { background: var(--bg-warning); border: 0.5px solid #d97706; border-radius: var(--radius-md); padding: 8px 12px; font-size: 12px; color: var(--text-warning); display: flex; align-items: center; gap: 8px; animation: fadeIn .3s ease; }
+  .retake-banner { background: var(--bg-warning); border: 1px solid #fbbf24; border-radius: var(--radius-md); padding: 10px 14px; font-size: 12px; color: var(--text-warning); display: flex; align-items: center; gap: 8px; animation: fadeIn .3s ease; }
 
   /* ── Misc ── */
   .spinner { width: 16px; height: 16px; border: 2px solid var(--border); border-top-color: var(--purple); border-radius: 50%; animation: spin .7s linear infinite; display: inline-block; vertical-align: middle; }
   .screen { display: none; flex-direction: column; min-height: 100vh; }
   .screen.active { display: flex; }
-  .controls-bar { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-top: 0.5px solid var(--border); flex-wrap: wrap; background: var(--bg-primary); }
-  .section-title { font-size: 11px; color: var(--text-secondary); font-weight: 500; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 8px; }
+  .controls-bar { display: flex; align-items: center; gap: 8px; padding: 12px 16px; border-top: 1px solid var(--border); flex-wrap: wrap; background: var(--bg-primary); }
+  .section-title { font-size: 10px; color: var(--text-secondary); font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 10px; }
 
   /* ── Animations ── */
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }
   @keyframes spin { to{transform:rotate(360deg)} }
-  @keyframes fadeIn { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:none} }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:none} }
   @keyframes blink { 50%{opacity:0} }
   @keyframes timerFlash { 0%,100%{color:var(--text-danger)} 50%{color:#f87171} }
+  @keyframes shimmer { 0%{background-position:-200% 0} 100%{background-position:200% 0} }
+  @keyframes gradShift { 0%,100%{background-position:0% 50%} 50%{background-position:100% 50%} }
 
   /* ── Modal overlay ── */
-  .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:1000; display:flex; align-items:center; justify-content:center; animation:fadeIn .2s ease; }
-  .modal-box { background:var(--bg-primary); border-radius:var(--radius-lg); padding:20px; max-width:600px; width:90%; max-height:85vh; overflow-y:auto; position:relative; box-shadow:0 20px 60px rgba(0,0,0,.3); }
-  .modal-close { position:absolute; top:12px; right:12px; background:none; border:none; font-size:18px; cursor:pointer; color:var(--text-secondary); padding:4px 8px; border-radius:6px; }
-  .modal-close:hover { background:var(--bg-secondary); }
+  .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:1000; display:flex; align-items:center; justify-content:center; animation:fadeIn .2s ease; backdrop-filter:blur(4px); }
+  .modal-box { background:var(--bg-primary); border-radius:18px; padding:24px; max-width:600px; width:90%; max-height:85vh; overflow-y:auto; position:relative; box-shadow:0 25px 60px rgba(0,0,0,.4), 0 0 0 1px var(--border); }
+  .modal-close { position:absolute; top:14px; right:14px; background:var(--bg-secondary); border:none; font-size:16px; cursor:pointer; color:var(--text-secondary); padding:4px 8px; border-radius:8px; transition:all .15s; }
+  .modal-close:hover { background:var(--bg-tertiary); color:var(--text-primary); }
 
   /* ── History cards ── */
-  .hist-card { background:var(--bg-secondary); border-radius:var(--radius-lg); padding:14px; cursor:pointer; transition:background .15s; border:0.5px solid var(--border); }
-  .hist-card:hover { background:var(--bg-tertiary); }
-  .hist-score { font-size:22px; font-weight:600; color:var(--purple); }
+  .hist-card { background:var(--bg-secondary); border-radius:var(--radius-lg); padding:16px; cursor:pointer; transition:all .2s; border:1px solid var(--border); }
+  .hist-card:hover { background:var(--bg-tertiary); transform:translateY(-2px); box-shadow:var(--shadow); }
+  .hist-score { font-size:24px; font-weight:700; color:var(--purple); }
 
   /* ── STAR checklist ── */
-  .star-row { display:flex; align-items:center; gap:8px; font-size:12px; padding:3px 0; }
-  .star-check { width:14px; height:14px; border-radius:4px; border:1.5px solid var(--border-md); flex-shrink:0; display:flex; align-items:center; justify-content:center; transition:all .25s; }
-  .star-check.done { background:var(--purple); border-color:var(--purple); }
-  .star-check.done::after { content:'✓'; font-size:9px; color:#fff; }
+  .star-row { display:flex; align-items:center; gap:10px; font-size:12px; padding:4px 0; font-weight:500; }
+  .star-check { width:16px; height:16px; border-radius:5px; border:2px solid var(--border-md); flex-shrink:0; display:flex; align-items:center; justify-content:center; transition:all .25s; }
+  .star-check.done { background:linear-gradient(135deg,var(--purple),#4f46e5); border-color:transparent; box-shadow:0 2px 6px rgba(109,100,235,.4); }
+  .star-check.done::after { content:'✓'; font-size:10px; color:#fff; font-weight:700; }
 
   /* ── Answer timer ── */
-  .ans-timer { font-size:11px; font-variant-numeric:tabular-nums; padding:2px 8px; border-radius:20px; background:var(--bg-secondary); color:var(--text-secondary); font-weight:500; }
-  .ans-timer.warn { background:var(--bg-warning); color:var(--text-warning); animation:timerFlash 1s ease-in-out infinite; }
-  .ans-timer.too-short { background:var(--bg-danger); color:var(--text-danger); }
+  .ans-timer { font-size:11px; font-variant-numeric:tabular-nums; padding:3px 10px; border-radius:20px; background:var(--bg-secondary); color:var(--text-secondary); font-weight:600; border:1px solid var(--border); }
+  .ans-timer.warn { background:var(--bg-warning); color:var(--text-warning); animation:timerFlash 1s ease-in-out infinite; border-color:#fbbf24; }
+  .ans-timer.too-short { background:var(--bg-danger); color:var(--text-danger); border-color:#fca5a5; }
 
   /* ── Warmup badge ── */
-  .warmup-badge { background:var(--bg-info); color:var(--text-info); border-radius:20px; font-size:11px; padding:2px 9px; font-weight:500; }
+  .warmup-badge { background:linear-gradient(135deg,#dbeafe,#ede9fe); color:#1d4ed8; border-radius:20px; font-size:11px; padding:3px 10px; font-weight:600; border:1px solid rgba(29,78,216,.2); }
+
+  /* ── Interview topbar gradient ── */
+  #screen-interview .topbar { background: var(--bg-primary); border-bottom: 1px solid var(--border); }
+  #screen-interview .topbar .logo-icon { background: linear-gradient(135deg,#ef4444,#f97316); box-shadow: 0 2px 8px rgba(239,68,68,.4); }
+
+  /* ── Loading screen ── */
+  #screen-loading { background: linear-gradient(135deg,#0d0b1e 0%,#1a1035 50%,#0d0b1e 100%); }
+  #screen-loading .spinner { border-color: rgba(255,255,255,.2); border-top-color: #a78bfa; width:36px; height:36px; border-width:3px; }
+  #screen-loading #load-msg { color:#f0eeff; font-size:16px; font-weight:600; }
+  #screen-loading #load-sub { color:#9089b8; }
+
+  /* ── Scrollbar ── */
+  ::-webkit-scrollbar { width:6px; height:6px; }
+  ::-webkit-scrollbar-track { background:transparent; }
+  ::-webkit-scrollbar-thumb { background:var(--border-md); border-radius:3px; }
+  ::-webkit-scrollbar-thumb:hover { background:var(--purple); }
 </style>
 </head>
 <body>
@@ -203,68 +249,95 @@
 
 <!-- ══════════════ SETUP SCREEN ══════════════ -->
 <div id="screen-setup" class="screen active">
-  <div class="topbar">
-    <div class="logo">
-      <div class="logo-icon">
-        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 2L13 5.5V10.5L8 14L3 10.5V5.5L8 2Z" stroke="#fff" stroke-width="1.2"/><circle cx="8" cy="8" r="2" fill="#fff"/></svg>
-      </div>
-      HireFlow
+  <!-- Hero banner -->
+  <div class="setup-hero">
+    <div class="setup-hero-badge">
+      <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M8 2L13 5.5V10.5L8 14L3 10.5V5.5L8 2Z" stroke="#fff" stroke-width="1.5"/><circle cx="8" cy="8" r="2" fill="#fff"/></svg>
+      AI-Powered Interview Coach
     </div>
-    <div style="display:flex;align-items:center;gap:8px">
-      <button class="btn btn-sm" onclick="showHistory()" id="btn-history" style="display:none">
+    <div class="setup-hero-title">HireFlow</div>
+    <div class="setup-hero-sub">Practice real interviews with live AI feedback, facial analysis &amp; personalised coaching</div>
+
+    <div style="display:flex;align-items:center;justify-content:space-between;position:absolute;top:14px;left:20px;right:20px">
+      <div style="font-size:13px;font-weight:700;color:#fff;display:flex;align-items:center;gap:8px">
+        <div style="width:28px;height:28px;border-radius:8px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px)">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 2L13 5.5V10.5L8 14L3 10.5V5.5L8 2Z" stroke="#fff" stroke-width="1.5"/><circle cx="8" cy="8" r="2" fill="#fff"/></svg>
+        </div>
+        HireFlow
+      </div>
+      <button class="btn btn-sm" onclick="showHistory()" id="btn-history" style="display:none;background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.3);color:#fff;backdrop-filter:blur(8px)">
         <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.2"/><path d="M8 5V8.5L10 10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
         History
       </button>
-      <span class="badge badge-info">Setup</span>
     </div>
   </div>
 
-  <div style="padding:24px;max-width:560px;margin:0 auto;width:100%;display:flex;flex-direction:column;gap:16px">
-    <div class="step-dots">
-      <div class="step-dot active" id="sd0"></div>
-      <div class="step-dot" id="sd1"></div>
-      <div class="step-dot" id="sd2"></div>
-    </div>
-
-    <!-- Step 0: Role & Company -->
-    <div id="setup-step-0">
-      <div style="font-size:16px;font-weight:500;margin-bottom:4px">Role & company</div>
-      <div style="font-size:13px;color:var(--text-secondary);margin-bottom:16px">We'll generate tailored questions for your specific role and company.</div>
-      <div style="display:flex;flex-direction:column;gap:12px">
-        <div><label>Role title *</label><input id="inp-role" placeholder="e.g. Senior Product Manager" /></div>
-        <div><label>Company name *</label><input id="inp-company" placeholder="e.g. Stripe" /></div>
-        <div><label>Job description URL (optional)</label><input id="inp-jd-url" placeholder="https://jobs.example.com/..." /></div>
-        <div><label>Or paste JD text (optional)</label><textarea id="inp-jd-text" rows="3" placeholder="Paste job description here…" style="resize:vertical"></textarea></div>
-        <div>
-          <label>Your own custom questions (optional, one per line)</label>
-          <textarea id="inp-custom-q" rows="3" placeholder="e.g. How do you handle ambiguity in product strategy?" style="resize:vertical"></textarea>
-          <div style="font-size:11px;color:var(--text-secondary);margin-top:3px">These are added on top of AI-generated questions.</div>
+  <!-- Step content card -->
+  <div style="max-width:560px;margin:0 auto;width:100%;padding:0 16px 40px">
+    <div class="setup-card">
+      <!-- Step indicators -->
+      <div class="step-nav">
+        <div class="step-item">
+          <div class="step-circle active" id="sd0">1</div>
+        </div>
+        <div class="step-line" id="sl0"></div>
+        <div class="step-item">
+          <div class="step-circle" id="sd1">2</div>
+        </div>
+        <div class="step-line" id="sl1"></div>
+        <div class="step-item">
+          <div class="step-circle" id="sd2">3</div>
         </div>
       </div>
-      <div style="margin-top:16px">
-        <button class="btn btn-primary" onclick="setupNext(1)" style="width:100%">Continue →</button>
-      </div>
-    </div>
 
-    <!-- Step 1: Resume -->
-    <div id="setup-step-1" style="display:none">
-      <div style="font-size:16px;font-weight:500;margin-bottom:4px">Resume (optional)</div>
-      <div style="font-size:13px;color:var(--text-secondary);margin-bottom:16px">Upload to personalise questions to your background.</div>
-      <div class="upload-zone" id="resume-zone" onclick="document.getElementById('resume-file').click()">
-        <input type="file" id="resume-file" accept=".pdf,.docx,.txt" style="display:none" onchange="handleResume(this)">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" style="margin:0 auto 8px;display:block;color:var(--text-secondary)"><rect x="4" y="3" width="12" height="16" rx="2" stroke="currentColor" stroke-width="1.2"/><path d="M14 3L18 7" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M14 3V7H18" stroke="currentColor" stroke-width="1.2"/><path d="M8 11H14M8 14H12" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
-        <div style="font-size:13px;color:var(--text-secondary)" id="resume-label">Click to upload PDF, DOCX, or TXT</div>
+      <!-- Step 0: Role & Company -->
+      <div id="setup-step-0">
+        <div style="margin-bottom:20px">
+          <div style="font-size:19px;font-weight:700;margin-bottom:4px;letter-spacing:-0.01em">Role &amp; company</div>
+          <div style="font-size:13px;color:var(--text-secondary)">We'll generate tailored questions for your specific role and company.</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div><label>Role title <span style="color:var(--text-danger)">*</span></label><input id="inp-role" placeholder="e.g. Senior Product Manager" /></div>
+          <div><label>Company name <span style="color:var(--text-danger)">*</span></label><input id="inp-company" placeholder="e.g. Stripe" /></div>
+          <div><label>Job description URL <span style="color:var(--text-secondary);font-weight:400">(optional)</span></label><input id="inp-jd-url" placeholder="https://jobs.example.com/..." /></div>
+          <div><label>Or paste JD text <span style="color:var(--text-secondary);font-weight:400">(optional)</span></label><textarea id="inp-jd-text" rows="3" placeholder="Paste job description here…" style="resize:vertical"></textarea></div>
+          <div>
+            <label>Custom questions <span style="color:var(--text-secondary);font-weight:400">(optional, one per line)</span></label>
+            <textarea id="inp-custom-q" rows="3" placeholder="e.g. How do you handle ambiguity in product strategy?" style="resize:vertical"></textarea>
+            <div style="font-size:11px;color:var(--text-secondary);margin-top:4px">These are added on top of AI-generated questions.</div>
+          </div>
+        </div>
+        <div style="margin-top:20px">
+          <button class="btn btn-primary" onclick="setupNext(1)" style="width:100%;padding:11px;font-size:14px;justify-content:center">Continue <span style="opacity:.8">→</span></button>
+        </div>
       </div>
-      <div style="display:flex;gap:8px;margin-top:16px">
-        <button class="btn" onclick="setupNext(0)" style="flex:1">← Back</button>
-        <button class="btn btn-primary" onclick="setupNext(2)" style="flex:1">Continue →</button>
-      </div>
-    </div>
 
-    <!-- Step 2: Preferences -->
-    <div id="setup-step-2" style="display:none">
-      <div style="font-size:16px;font-weight:500;margin-bottom:4px">Question preferences</div>
-      <div style="font-size:13px;color:var(--text-secondary);margin-bottom:16px">Choose focus areas and difficulty.</div>
+      <!-- Step 1: Resume -->
+      <div id="setup-step-1" style="display:none">
+        <div style="margin-bottom:20px">
+          <div style="font-size:19px;font-weight:700;margin-bottom:4px;letter-spacing:-0.01em">Resume</div>
+          <div style="font-size:13px;color:var(--text-secondary)">Upload to personalise questions to your background. Totally optional.</div>
+        </div>
+        <div class="upload-zone" id="resume-zone" onclick="document.getElementById('resume-file').click()">
+          <input type="file" id="resume-file" accept=".pdf,.docx,.txt" style="display:none" onchange="handleResume(this)">
+          <div style="width:44px;height:44px;border-radius:12px;background:var(--purple-light);display:flex;align-items:center;justify-content:center;margin:0 auto 10px">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" style="color:var(--purple)"><rect x="4" y="3" width="12" height="16" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M14 3L18 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M14 3V7H18" stroke="currentColor" stroke-width="1.5"/><path d="M8 11H14M8 14H12" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+          </div>
+          <div style="font-size:13px;font-weight:500;color:var(--text-primary)" id="resume-label">Click to upload PDF, DOCX, or TXT</div>
+          <div style="font-size:12px;color:var(--text-secondary);margin-top:4px">or drag and drop</div>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:20px">
+          <button class="btn" onclick="setupNext(0)" style="flex:1;justify-content:center">← Back</button>
+          <button class="btn btn-primary" onclick="setupNext(2)" style="flex:2;justify-content:center">Continue →</button>
+        </div>
+      </div>
+
+      <!-- Step 2: Preferences -->
+      <div id="setup-step-2" style="display:none">
+        <div style="margin-bottom:20px">
+          <div style="font-size:19px;font-weight:700;margin-bottom:4px;letter-spacing:-0.01em">Preferences</div>
+          <div style="font-size:13px;color:var(--text-secondary)">Tune focus areas, difficulty, and AI provider.</div>
+        </div>
       <div style="display:flex;flex-direction:column;gap:12px">
         <div>
           <label>Number of questions</label>
@@ -320,21 +393,36 @@
           <div style="font-size:11px;color:var(--text-secondary);margin-top:4px" id="apikey-hint">Blank = uses the app's server-side key. Your own key = calls the provider directly from your browser.</div>
         </div>
       </div>
-      <div style="display:flex;gap:8px;margin-top:16px">
-        <button class="btn" onclick="setupNext(1)" style="flex:1">← Back</button>
-        <button class="btn btn-primary" id="btn-generate" onclick="generateInterview()" style="flex:1">
-          <span id="gen-label">Generate questions</span>
+      <div style="display:flex;gap:10px;margin-top:20px">
+        <button class="btn" onclick="setupNext(1)" style="flex:1;justify-content:center">← Back</button>
+        <button class="btn btn-primary" id="btn-generate" onclick="generateInterview()" style="flex:2;justify-content:center;padding:11px;font-size:14px">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 2L13 5.5V10.5L8 14L3 10.5V5.5L8 2Z" stroke="#fff" stroke-width="1.5"/><circle cx="8" cy="8" r="2" fill="#fff"/></svg>
+          <span id="gen-label">Generate my interview</span>
         </button>
       </div>
-    </div>
-  </div>
+      </div><!-- /setup-step-2 -->
+    </div><!-- /setup-card -->
+  </div><!-- /max-width wrapper -->
 </div>
 
 <!-- ══════════════ LOADING SCREEN ══════════════ -->
-<div id="screen-loading" class="screen" style="align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:16px">
-  <div class="spinner" style="width:32px;height:32px;border-width:3px"></div>
-  <div style="font-size:14px;font-weight:500" id="load-msg">Generating questions…</div>
-  <div style="font-size:12px;color:var(--text-secondary)" id="load-sub">Using Claude to craft personalised questions</div>
+<div id="screen-loading" class="screen" style="align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:20px">
+  <div style="position:relative;width:64px;height:64px">
+    <div style="position:absolute;inset:0;border-radius:50%;background:linear-gradient(135deg,rgba(109,100,235,.3),rgba(167,139,250,.3));animation:pulse 2s ease-in-out infinite"></div>
+    <div class="spinner" style="position:absolute;inset:8px;width:48px;height:48px;border-width:3px"></div>
+    <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">
+      <svg width="18" height="18" viewBox="0 0 16 16" fill="none"><path d="M8 2L13 5.5V10.5L8 14L3 10.5V5.5L8 2Z" stroke="#a78bfa" stroke-width="1.5"/><circle cx="8" cy="8" r="2" fill="#a78bfa"/></svg>
+    </div>
+  </div>
+  <div style="text-align:center">
+    <div style="font-size:17px;font-weight:700;margin-bottom:6px" id="load-msg">Generating questions…</div>
+    <div style="font-size:13px" id="load-sub">Crafting personalised interview questions</div>
+  </div>
+  <div style="display:flex;gap:6px;margin-top:4px">
+    <div style="width:6px;height:6px;border-radius:50%;background:#a78bfa;animation:pulse 1.2s .0s ease-in-out infinite"></div>
+    <div style="width:6px;height:6px;border-radius:50%;background:#a78bfa;animation:pulse 1.2s .2s ease-in-out infinite"></div>
+    <div style="width:6px;height:6px;border-radius:50%;background:#a78bfa;animation:pulse 1.2s .4s ease-in-out infinite"></div>
+  </div>
 </div>
 
 <!-- ══════════════ INTERVIEW SCREEN ══════════════ -->
@@ -348,15 +436,15 @@
     </div>
     <div style="display:flex;align-items:center;gap:10px">
       <span class="badge badge-muted" id="status-badge">Ready</span>
-      <span style="font-size:13px;font-weight:500;color:var(--text-secondary);font-variant-numeric:tabular-nums" id="timer">00:00</span>
+      <span style="font-size:13px;font-weight:600;color:var(--text-secondary);font-variant-numeric:tabular-nums;letter-spacing:.02em;background:var(--bg-secondary);padding:3px 10px;border-radius:20px;border:1px solid var(--border)" id="timer">00:00</span>
     </div>
   </div>
 
   <!-- Q pills bar -->
-  <div style="padding:8px 14px;border-bottom:0.5px solid var(--border);display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--bg-primary)">
-    <span style="font-size:12px;color:var(--text-secondary);flex-shrink:0">Questions</span>
+  <div style="padding:8px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--bg-primary)">
+    <span style="font-size:11px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.06em;flex-shrink:0">Questions</span>
     <div style="display:flex;gap:5px;flex-wrap:wrap" id="q-pills"></div>
-    <div style="margin-left:auto;font-size:12px;color:var(--text-secondary)" id="role-label"></div>
+    <div style="margin-left:auto;font-size:12px;font-weight:500;color:var(--text-secondary);background:var(--bg-secondary);padding:2px 10px;border-radius:20px;border:1px solid var(--border)" id="role-label"></div>
   </div>
 
   <div class="main">
@@ -626,6 +714,11 @@ function setupNext(step){
     d.classList.toggle('active',i===step);
     d.classList.toggle('done',i<step);
   });
+  // Update connecting lines
+  [0,1].forEach(i=>{
+    const line=document.getElementById('sl'+i);
+    if(line) line.classList.toggle('done',step>i);
+  });
 }
 
 function handleResume(inp){
@@ -783,7 +876,7 @@ function initInterviewScreen(){
   // Build question list (warmup prepended if enabled)
   const warmupQs= S.warmup ? [
     {text:'Tell me a little about yourself and what brings you to interview prep today.',tag:'Warm-up',tip:'Relax — this is just to get comfortable. No right answer.', isWarmup:true},
-    {text:'What's one recent achievement you're proud of, big or small?',tag:'Warm-up',tip:'Keep it brief and genuine.', isWarmup:true},
+    {text:"What’s one recent achievement you’re proud of, big or small?",tag:'Warm-up',tip:'Keep it brief and genuine.', isWarmup:true},
   ] : [];
   S.allQuestions=[...warmupQs, ...S.questions];
 
